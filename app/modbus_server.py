@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 """ ***************************************************************************
-Modbus simulation script for the StEP project MVP Lab environment
-Author: Michael Oberdorf, bridgingIT GmbH
+Modbus TCP server script for debugging
+Author: Michael Oberdorf IT-Consulting
 Datum: 2020-03-30
-
-example taken from: https://pymodbus.readthedocs.io/en/latest/source/example/synchronous_server.html
 *************************************************************************** """
 import sys
 import os
