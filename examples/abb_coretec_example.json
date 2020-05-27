@@ -14,7 +14,7 @@
   },
 "registers": {
   "description": "initial values for the register types",
-  "zeroMode": false,
+  "zeroMode": true,
   "initializeUndefinedRegisters": true,
   "discreteInput": {},
   "coils": {},
