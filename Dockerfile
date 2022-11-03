@@ -11,7 +11,7 @@ LABEL site.local.program.version="1.1.2"
 RUN addgroup -g 1000 -S pythonuser && \
     adduser -u 1000 -S pythonuser -G pythonuser && \
     mkdir -p /app && \
-    pip3 install pymodbus
+    pip3 install 'pymodbus>=2,<3'
 ADD --chown=root:root app/* /app/
 
 USER pythonuser
