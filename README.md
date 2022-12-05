@@ -2,11 +2,11 @@
 
 Maintained by: [Michael Oberdorf IT-Consulting](https://www.oberdorf-itc.de/)
 
-Source code: [Bitbucket](https://bitbucket.org/Cybcon/modbus-server/src/master/)
+Source code: [GitHub](https://github.com/cybcon/modbus-server)
 
 # Supported tags and respective `Dockerfile` links
 
-* [`latest`, `1.1.2`](https://bitbucket.org/Cybcon/modbus-server/src/1.1.2/Dockerfile)
+* [`latest`, `1.1.2`](https://github.com/cybcon/modbus-server/blob/1.1.2/Dockerfile)
 
 # What is Modbus TCP Server?
 
