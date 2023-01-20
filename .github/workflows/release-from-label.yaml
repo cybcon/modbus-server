@@ -1,0 +1,8 @@
+name: release
+on:
+  pull_request:
+    types:
+      - closed
+jobs:
+  release:
+    uses: cybcon/github_workflows/.github/workflows/release-from-label.yaml@v1.0.0

@@ -1,0 +1,10 @@
+name: pre-commit
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - main
+jobs:
+  pre-commit:
+    uses: cybcon/github_workflows/.github/workflows/pre-commit.yaml@v1.0.0
