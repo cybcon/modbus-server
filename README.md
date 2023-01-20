@@ -6,7 +6,8 @@ Source code: [GitHub](https://github.com/cybcon/modbus-server)
 
 # Supported tags and respective `Dockerfile` links
 
-* [`latest`, `1.1.2`](https://github.com/cybcon/modbus-server/blob/1.1.2/Dockerfile)
+* [`latest`, `1.1.3`](https://github.com/cybcon/modbus-server/blob/v1.1.2/Dockerfile)
+* [`1.1.2`](https://github.com/cybcon/modbus-server/blob/1.1.2/Dockerfile)
 
 # What is Modbus TCP Server?
 
@@ -119,7 +120,7 @@ docker run --rm -p 5020:5020 -v ./server_config.json:/server_config.json oitc/mo
 
 # License
 
-Copyright (c) 2020 Michael Oberdorf IT-Consulting
+Copyright (c) 2020-2023 Michael Oberdorf IT-Consulting
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
