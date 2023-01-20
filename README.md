@@ -11,7 +11,7 @@ Source code: [GitHub](https://github.com/cybcon/modbus-server)
 # What is Modbus TCP Server?
 
 The Modbus TCP Server is a simple, in python written, Modbus TCP server. It listens to port 5020 and respond to any register types with a `0x0000`.
-The Modbus registers can be also predefined with values. 
+The Modbus registers can be also predefined with values.
 
 # QuickStart with Modbus TCP Server and Docker
 
@@ -118,7 +118,7 @@ docker run --rm -p 5020:5020 -v ./server_config.json:/server_config.json oitc/mo
 
 
 # License
- 
+
 Copyright (c) 2020 Michael Oberdorf IT-Consulting
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
