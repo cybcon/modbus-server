@@ -43,7 +43,7 @@ def run_server(listener_address='0.0.0.0', listener_port=5020, tls_cert=None, tl
     """
     Run the modbus server(s)
     @param listener_address: string, IP address to bind the listener (default: '0.0.0.0')
-    @param listener_port: integer, TCP port to bin the listener (default: 5020)  
+    @param listener_port: integer, TCP port to bin the listener (default: 5020)
     @param tls_cert: boolean, path to certificate to start tcp server with TLS (default: None)
     @param tls_key: boolean, path to private key to start tcp server with TLS (default: None)
     @param zeroMode: boolean, request to address(0-7) will map to the address (0-7) instead of (1-8) (default: False)
@@ -64,7 +64,7 @@ def run_server(listener_address='0.0.0.0', listener_port=5020, tls_cert=None, tl
         #di = ModbusSequentialDataBlock(0x00, [0xaa]*65536)
         log.debug('set all registers to 0x00')
         di = ModbusSequentialDataBlock.create()
-    
+
     log.debug('Initialize coils')
     if isinstance(coils, dict) and len(coils) > 0:
         #log.debug('using dictionary from configuration file:')
@@ -75,7 +75,7 @@ def run_server(listener_address='0.0.0.0', listener_port=5020, tls_cert=None, tl
         #co = ModbusSequentialDataBlock(0x00, [0xbb]*65536)
         log.debug('set all registers to 0x00')
         co = ModbusSequentialDataBlock.create()
-    
+
     log.debug('Initialize holding registers')
     if isinstance(holdingRegisters, dict) and len(holdingRegisters) > 0:
         #log.debug('using dictionary from configuration file:')
@@ -86,7 +86,7 @@ def run_server(listener_address='0.0.0.0', listener_port=5020, tls_cert=None, tl
         #hr = ModbusSequentialDataBlock(0x00, [0xcc]*65536)
         log.debug('set all registers to 0x00')
         hr = ModbusSequentialDataBlock.create()
-    
+
     log.debug('Initialize input registers')
     if isinstance(inputRegisters, dict) and len(inputRegisters) > 0:
         #log.debug('using dictionary from configuration file:')
@@ -122,13 +122,13 @@ def run_server(listener_address='0.0.0.0', listener_port=5020, tls_cert=None, tl
     identity.ProductName = 'Pymodbus Server'
     identity.ModelName = 'Pymodbus Server'
     identity.MajorMinorRevision = '2.3.0'
-    
+
     # ----------------------------------------------------------------------- #
     # run the server
     # ----------------------------------------------------------------------- #
     startTLS=False
     if tls_cert and tls_key and os.path.isfile(tls_cert) and os.path.isfile(tls_key): startTLS=True
-    
+
     if startTLS:
         log.info('Starting Modbus TCP server with TLS on ' + listener_address + ':' + str(listener_port))
         StartTlsServer(context, identity=identity, certfile=tls_cert, keyfile=tls_key, address=(listener_address, listener_port))
@@ -144,20 +144,20 @@ def prepareRegister(register, initializeUndefinedRegisters=False):
     Function to prepare the register to have the correct data types
     @param register: dict(), the register dictionary, loaded from json file
     @param initializeUndefinedRegisters: boolean, fill undefined registers with 0x00 (default: False)
-    @return: dict(), register with correct data types 
+    @return: dict(), register with correct data types
     """
     outRegister=dict()
     if not isinstance(register, dict):
         log.error('Unexpected input in function prepareRegister')
         return(outRegister)
     if len(register) == 0: return(outRegister)
-    
+
     for key in register:
         if isinstance(key, str):
             keyOut = int(key, 0)
             log.debug('  Transform register id: ' + str(key) + ' ('+ str(type(key)) + ') to: ' + str(keyOut) + ' (' + str(type(keyOut)) + ')')
         else: keyOut = key
-        
+
         val = register[key]
         valOut = val
         if isinstance(val, str) and str(val)[0:2] == '0x':
@@ -232,5 +232,3 @@ run_server(
     holdingRegisters=holdingRegisters,
     inputRegisters=inputRegisters
     )
-
-
