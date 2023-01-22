@@ -28,7 +28,7 @@ jobs:
        run: |
          docker save --output oitc-modbus-server_${{steps.vars.outputs.tag}}.tar oitc/modbus-server:${{steps.vars.outputs.tag}}
 
-     - name Upload the container image for caching
+     - name: Upload the container image for caching
        uses: actions/upload-artifact@v3.1.2
        with:
          name: modbus-server
