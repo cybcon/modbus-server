@@ -21,10 +21,10 @@ jobs:
            echo "ERROR: unable to detect version number!" >&2
            exit 1
          fi
-         echo "tag=${image_version}" >> ${GITHUB_OUTPUT}
+         echo "tag=${image_version}" >> $GITHUB_OUTPUT
      - name: Build container image
        run: |
-         docker build . --file Dockerfile --tag oitc/modbus-server:${{steps.steps.application-version.outputs.tag}}
+         docker build . --file Dockerfile --tag oitc/modbus-server:${{steps.application-version.outputs.tag}}
      - name: Export container image for caching
        run: |
          docker save --output oitc-modbus-server_${{steps.application-version.outputs.tag}}.tar oitc/modbus-server:${{steps.application-version.outputs.tag}}
