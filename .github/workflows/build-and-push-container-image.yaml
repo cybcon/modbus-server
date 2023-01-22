@@ -1,0 +1,38 @@
+name: build-and-push-container-image
+on:
+  pull_request:
+    types:
+      - closed
+jobs:
+  build-and-push-container-image:
+    name: Build and push container image
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.merged == true &&
+      github.base_ref == inputs.on_base_ref &&
+      github.event.action == 'closed' &&
+      (
+        contains(github.event.pull_request.labels.*.name, 'major') ||
+        contains(github.event.pull_request.labels.*.name, 'minor') ||
+        contains(github.event.pull_request.labels.*.name, 'patch')
+      ) &&
+      !contains(github.event.pull_request.labels.*.name, 'chore')
+    steps:
+      - name: Checkout GIT repository
+        uses: actions/checkout@v3
+      - name: Get the application version
+        id: application-version
+        run: |
+          image_version=$(grep "^LABEL site.local.program.version=" Dockerfile | cut -d= -f2 | sed -e 's/"//g')
+          if [ -z "${image_version}" ]; then
+            echo "ERROR: unable to detect version number!" >&2
+            exit 1
+          fi
+          echo "tag=${image_version}" >> $GITHUB_OUTPUT
+      - name: Build container image
+        run: docker build . --file Dockerfile --tag oitc/modbus-server:${{steps.application-version.outputs.tag}}
+      - name: Login to container registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Push container image to container registry
+        run: docker push oitc/modbus-server:${{steps.application-version.outputs.tag}}

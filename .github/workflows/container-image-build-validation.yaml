@@ -1,0 +1,18 @@
+name:  container-image-build-validation
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+jobs:
+  container-build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+     - name: Checkout GIT repository
+       uses: actions/checkout@v3
+     - name: Build container image
+       run: |
+         docker build . --file Dockerfile --tag container-build:test
