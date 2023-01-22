@@ -1,0 +1,35 @@
+name: build-container-image
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+     - name: Checkout GIT repository
+       uses: actions/checkout@v3
+     - name: Get the application version
+       run: |
+         image_version=$(grep "^LABEL site.local.program.version=" Dockerfile | cut -d= -f2 | sed -e 's/"//g')
+         if [ -z "${image_version}" ]; then
+           echo "ERROR: unable to detect version number!" >&2
+           exit 1
+         fi
+         echo "tag=${image_version}" >> ${GITHUB_OUTPUT}
+     - name: Build container image
+       run: |
+         docker build . --file Dockerfile --tag oitc/modbus-server:${{steps.vars.outputs.tag}}
+     - name: Export container image for caching
+       run: |
+         docker save --output oitc-modbus-server_${{steps.vars.outputs.tag}}.tar oitc/modbus-server:${{steps.vars.outputs.tag}}
+     - name Cache the new container image
+       uses: actions/upload-artifact@master
+       with:
+         name: oitc-modbus-server_${{steps.vars.outputs.tag}}
+         path: oitc-modbus-server_${{steps.vars.outputs.tag}}.tar
+         retention-days: 1
