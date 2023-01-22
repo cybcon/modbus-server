@@ -1,0 +1,34 @@
+name: build-container-image
+on:
+  pull_request:
+    types:
+      - closed
+jobs:
+  build:
+    name: Push Container Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download container image from cache
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: modbus-server
+      - name: Identify container version
+        id: vars
+        run: |
+          container_image_file=$(find . -name "oitc-modbus-server_*.tar" -type -f | tail -1)
+          if [ -z "${container_image_file}" ]; then
+            echo "ERROR: Unable to get the container image file!" >&2
+            exit 1
+          fi
+          container_version=$(basename ${container_image_file} | cut -d_ -f2 | sed -e 's/\.tar$//')
+          image_name="oitc/modbus-server:${container_version}"
+
+          echo "container_image_file=${container_image_file}" >> $GITHUB_OUTPUT
+          echo "container_version=${container_version}" >> $GITHUB_OUTPUT
+          echo "image_name=${image_name}" >> $GITHUB_OUTPUT
+      - name: Import container image
+        run: docker import ${{steps.vars.outputs.container_image_file}}
+      - name: Login to container registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Upload container image to container registry
+        run: docker push ${{steps.vars.outputs.image_name}}
