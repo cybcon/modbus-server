@@ -14,6 +14,7 @@ jobs:
      - name: Checkout GIT repository
        uses: actions/checkout@v3
      - name: Get the application version
+       id: application-version
        run: |
          image_version=$(grep "^LABEL site.local.program.version=" Dockerfile | cut -d= -f2 | sed -e 's/"//g')
          if [ -z "${image_version}" ]; then
@@ -23,15 +24,15 @@ jobs:
          echo "tag=${image_version}" >> ${GITHUB_OUTPUT}
      - name: Build container image
        run: |
-         docker build . --file Dockerfile --tag oitc/modbus-server:${{steps.vars.outputs.tag}}
+         docker build . --file Dockerfile --tag oitc/modbus-server:${{steps.steps.application-version.outputs.tag}}
      - name: Export container image for caching
        run: |
-         docker save --output oitc-modbus-server_${{steps.vars.outputs.tag}}.tar oitc/modbus-server:${{steps.vars.outputs.tag}}
+         docker save --output oitc-modbus-server_${{steps.application-version.outputs.tag}}.tar oitc/modbus-server:${{steps.application-version.outputs.tag}}
 
      - name: Upload the container image for caching
        uses: actions/upload-artifact@v3.1.2
        with:
          name: modbus-server
-         path: oitc-modbus-server_${{steps.vars.outputs.tag}}.tar
+         path: oitc-modbus-server_${{steps.application-version.outputs.tag}}.tar
          if-no-files-found: error
          retention-days: 1
