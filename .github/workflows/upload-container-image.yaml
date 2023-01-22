@@ -4,9 +4,10 @@ on:
     types:
       - closed
 jobs:
-  build:
+  container-push:
     name: Push Container Image
     runs-on: ubuntu-latest
+    needs: container-build
     steps:
       - name: Download container image from cache
         uses: actions/download-artifact@v3.0.2
