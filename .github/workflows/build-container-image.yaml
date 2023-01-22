@@ -28,8 +28,9 @@ jobs:
        run: |
          docker save --output oitc-modbus-server_${{steps.vars.outputs.tag}}.tar oitc/modbus-server:${{steps.vars.outputs.tag}}
      - name Cache the new container image
-       uses: actions/upload-artifact@master
+       uses: actions/upload-artifact@v3
        with:
          name: oitc-modbus-server_${{steps.vars.outputs.tag}}
          path: oitc-modbus-server_${{steps.vars.outputs.tag}}.tar
+         if-no-files-found: error
          retention-days: 1
