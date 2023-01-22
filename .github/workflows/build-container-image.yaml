@@ -31,7 +31,7 @@ jobs:
      - name Upload the container image for caching
        uses: actions/upload-artifact@v3.1.2
        with:
-         name: oitc-modbus-server_${{steps.vars.outputs.tag}}
+         name: modbus-server
          path: oitc-modbus-server_${{steps.vars.outputs.tag}}.tar
          if-no-files-found: error
          retention-days: 1
