@@ -10,7 +10,6 @@ jobs:
     if: |
       github.event_name == 'pull_request' &&
       github.event.pull_request.merged == true &&
-      github.base_ref == inputs.on_base_ref &&
       github.event.action == 'closed' &&
       (
         contains(github.event.pull_request.labels.*.name, 'major') ||
