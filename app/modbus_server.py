@@ -19,7 +19,7 @@ import json
 
 # default configuration file path
 config_file='/opt/modbus_server/etc/modbus_server.json'
-VERSION='1.1.2'
+VERSION='1.1.3'
 """
 ###############################################################################
 # F U N C T I O N S
