@@ -6,4 +6,4 @@ on:
       - main
 jobs:
   pre-commit:
-    uses: cybcon/github_workflows/.github/workflows/pre-commit.yaml@v1.0.0
+    uses: cybcon/github_workflows/.github/workflows/pre-commit.yaml@v1.1.1

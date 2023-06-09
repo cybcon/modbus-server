@@ -10,4 +10,4 @@ on:
       - unlabeled
 jobs:
   release-label-validation:
-    uses: cybcon/github_workflows/.github/workflows/release-label-validation.yaml@v1.0.0
+    uses: cybcon/github_workflows/.github/workflows/release-label-validation.yaml@v1.1.1
