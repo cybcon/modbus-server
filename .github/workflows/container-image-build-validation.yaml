@@ -24,8 +24,18 @@ jobs:
           context: .
           platforms: linux/amd64, linux/arm64
           tags: container-build:test
+          outputs: type=docker,dest=/tmp/container.tar
+      - name: Upload container image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: container-build
+          path: /tmp/container.tar
   scan:
     name: Container vulnerability scan
-    uses: cybcon/github_workflows/.github/workflows/container-vulnerability-scan.yaml@v1.1.5
+    uses: cybcon/github_workflows/.github/workflows/container-vulnerability-scan.yaml@v1.1.6
     with:
-      image: container-build:test
+      image_name: container-build:test
+      image_artifact_filename: container.tar
+      image_artifact_name: container-build
+      login_dockerhub: false
+      trivy_tag: latest
