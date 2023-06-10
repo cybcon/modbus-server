@@ -5,4 +5,4 @@ on:
       - closed
 jobs:
   release:
-    uses: cybcon/github_workflows/.github/workflows/release-from-label.yaml@v1.1.6
+    uses: cybcon/github_workflows/.github/workflows/release-from-label.yaml@v1.1.7
