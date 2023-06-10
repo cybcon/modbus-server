@@ -24,7 +24,12 @@ jobs:
           context: .
           platforms: linux/amd64, linux/arm64
           tags: container-build:test
-          outputs: type=docker,dest=/tmp/container.tar
+      - name: List available container images in local repository
+        run: |
+          docker image ls -a
+      - name: Export the linux/amd64 container image
+        run: |
+          docker save -o /tmp/container.tar container-build:test
       - name: Upload container image as artifact
         uses: actions/upload-artifact@v2
         with:
@@ -32,6 +37,7 @@ jobs:
           path: /tmp/container.tar
   scan:
     name: Container vulnerability scan
+    needs: container-build
     uses: cybcon/github_workflows/.github/workflows/container-vulnerability-scan.yaml@v1.1.8
     with:
       image_name: container-build:test
