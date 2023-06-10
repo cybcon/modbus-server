@@ -18,13 +18,33 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Test build
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v4.1.0
         with:
           push: false
+          load: false
           context: .
           platforms: linux/amd64, linux/arm64
           tags: container-build:test
-      - name: Container vulnerability scan
-        uses: cybcon/github_workflows/.github/workflows/container-vulnerability-scan.yaml@v1.1.1
+      - name: Test build and export for further validation
+        uses: docker/build-push-action@v4.1.0
         with:
-          image: container-build:test
+          push: false
+          load: true
+          context: .
+          tags: container-build:test
+          outputs: type=docker,dest=/tmp/container.tar
+      - name: Upload container image as artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: container-build
+          path: /tmp/container.tar
+  scan:
+    name: Container vulnerability scan
+    needs: container-build
+    uses: cybcon/github_workflows/.github/workflows/container-vulnerability-scan.yaml@v1.1.10
+    with:
+      image_name: container-build:test
+      image_artifact_filename: container.tar
+      image_artifact_name: container-build
+      login_dockerhub: false
+      trivy_tag: latest
