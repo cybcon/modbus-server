@@ -34,7 +34,7 @@ jobs:
           tags: container-build:test
           outputs: type=docker,dest=/tmp/container.tar
       - name: Upload container image as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: container-build
           path: /tmp/container.tar
