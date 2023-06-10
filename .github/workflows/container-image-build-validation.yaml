@@ -32,7 +32,7 @@ jobs:
           path: /tmp/container.tar
   scan:
     name: Container vulnerability scan
-    uses: cybcon/github_workflows/.github/workflows/container-vulnerability-scan.yaml@v1.1.7
+    uses: cybcon/github_workflows/.github/workflows/container-vulnerability-scan.yaml@v1.1.8
     with:
       image_name: container-build:test
       image_artifact_filename: container.tar
