@@ -33,7 +33,7 @@ Step - 3 : Predefine registers
 The default configuration file is configured to initialize every register with a `0x0000`.
 To set register values, you need to create your own configuration file.
 
-An example can be found in the GIT repo: [abb_coretec_example.json](https://bitbucket.org/Cybcon/modbus-server/src/master/examples/abb_coretec_example.json)
+An example can be found in the GIT repo: [abb_coretec_example.json](./examples/abb_coretec_example.json)
 
 ```bash
 docker run --rm -p 5020:5020 -v ./server_config.json:/server_config.json oitc/modbus-server:latest -f /server_config.json
