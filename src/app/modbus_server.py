@@ -3,6 +3,8 @@
 Modbus TCP server script for debugging
 Author: Michael Oberdorf IT-Consulting
 Datum: 2020-03-30
+Last modified by: Hackergarden Meetup@Codecentric
+Last modified at: 2023-11-07
 *************************************************************************** """
 import sys
 import os
@@ -18,8 +20,8 @@ import argparse
 import json
 
 # default configuration file path
-config_file='/opt/modbus_server/etc/modbus_server.json'
-VERSION='1.1.3'
+config_file='/app/modbus_server.json'
+VERSION='1.1.4'
 """
 ###############################################################################
 # F U N C T I O N S
@@ -39,7 +41,7 @@ def get_ip_address():
         pass
     return(ipaddr)
 
-def run_server(listener_address='0.0.0.0', listener_port=5020, tls_cert=None, tls_key=None, zeroMode=False, discreteInputs=dict(), coils=dict(), holdingRegisters=dict(), inputRegisters=dict()):
+def run_server(listener_address: str = '0.0.0.0', listener_port: int = 5020, tls_cert: str = None, tls_key: str = None, zeroMode: bool = False, discreteInputs: dict = dict(), coils: dict = dict(), holdingRegisters: dict = dict(), inputRegisters: dict = dict()):
     """
     Run the modbus server(s)
     @param listener_address: string, IP address to bind the listener (default: '0.0.0.0')
@@ -139,10 +141,11 @@ def run_server(listener_address='0.0.0.0', listener_port=5020, tls_cert=None, tl
         # StartTcpServer(context, identity=identity, framer=ModbusRtuFramer, address=(listener_address, listener_port))
 
 
-def prepareRegister(register, initializeUndefinedRegisters=False):
+def prepareRegister(register: dict, initType: str, initializeUndefinedRegisters: bool = False) -> dict:
     """
     Function to prepare the register to have the correct data types
     @param register: dict(), the register dictionary, loaded from json file
+    @param initType: str(), how to initialize the register values 'boolean' or 'word'
     @param initializeUndefinedRegisters: boolean, fill undefined registers with 0x00 (default: False)
     @return: dict(), register with correct data types
     """
@@ -160,17 +163,34 @@ def prepareRegister(register, initializeUndefinedRegisters=False):
 
         val = register[key]
         valOut = val
-        if isinstance(val, str) and str(val)[0:2] == '0x':
+        if initType == 'word' and isinstance(val, str) and str(val)[0:2] == '0x':
             valOut = int(val, 16)
             log.debug('  Transform value for register: ' + str(keyOut) + ' from: ' + str(val) + ' ('+ str(type(key)) + ') to: ' + str(valOut) + ' (' + str(type(valOut)) + ')')
+        elif initType == 'boolean':
+            if isinstance(val, bool):
+              valOut = val
+              log.debug('  Set register: ' + str(keyOut) + ' to: ' + str(valOut) + ' (' + str(type(valOut)) + ')')
+            elif isinstance(val, int):
+              if val == 0:
+                valOut = False
+              else:
+                valOut = True
+              log.debug('  Transform value for register: ' + str(keyOut) + ' from: ' + str(val) + ' ('+ str(type(key)) + ') to: ' + str(valOut) + ' (' + str(type(valOut)) + ')')
         outRegister[keyOut] = valOut
 
     if initializeUndefinedRegisters:
-        log.debug('  Fill undefined registers with 0x00')
+        if initType == 'word':
+          log.debug('  Fill undefined registers with 0x00')
+        elif initType == 'boolean':
+          log.debug('  Fill undefined registers with False')
         for r in range(0, 65536, 1):
             if r not in outRegister:
+              if initType == 'word':
                 #log.debug('  Initialize address: ' + str(r) + ' with 0')
                 outRegister[r] = 0
+              elif initType == 'boolean':
+                #log.debug('  Initialize address: ' + str(r) + ' with False')
+                outRegister[r] = False
 
     return(outRegister)
 
@@ -194,7 +214,8 @@ if args.config_file:
         config_file=args.config_file
 
 # read configuration file
-with open(config_file, encoding='utf-8') as f: CONFIG = json.load(f)
+with open(config_file, encoding='utf-8') as f:
+  CONFIG = json.load(f)
 
 
 # Initialize logger
@@ -209,15 +230,16 @@ elif CONFIG['server']['logging']['logLevel'].lower() == 'error': log.setLevel(lo
 else: log.setLevel(logging.INFO)
 
 
-# be sure the data types within the dictionaries are correct (json will only allow strings as keys)
-discreteInputs = prepareRegister(CONFIG['registers']['discreteInput'], CONFIG['registers']['initializeUndefinedRegisters'])
-coils=prepareRegister(CONFIG['registers']['coils'], CONFIG['registers']['initializeUndefinedRegisters'])
-holdingRegisters=prepareRegister(CONFIG['registers']['holdingRegister'], CONFIG['registers']['initializeUndefinedRegisters'])
-inputRegisters=prepareRegister(CONFIG['registers']['inputRegister'], CONFIG['registers']['initializeUndefinedRegisters'])
-
-
 # start the server
 log.info('Starting Modbus TCP Server, v' + str(VERSION))
+log.debug('Loaded successfully the configuration file: {}'.format(config_file))
+
+# be sure the data types within the dictionaries are correct (json will only allow strings as keys)
+discreteInputs = prepareRegister(register = CONFIG['registers']['discreteInput'], initType='boolean', initializeUndefinedRegisters = CONFIG['registers']['initializeUndefinedRegisters'])
+coils=prepareRegister(register = CONFIG['registers']['coils'], initType='boolean', initializeUndefinedRegisters = CONFIG['registers']['initializeUndefinedRegisters'])
+holdingRegisters=prepareRegister(register = CONFIG['registers']['holdingRegister'], initType='word', initializeUndefinedRegisters = CONFIG['registers']['initializeUndefinedRegisters'])
+inputRegisters=prepareRegister(register = CONFIG['registers']['inputRegister'], initType='word', initializeUndefinedRegisters = CONFIG['registers']['initializeUndefinedRegisters'])
+
 # try to get the interface IP address
 localIPAddr = get_ip_address()
 if localIPAddr != '': log.info('Outbund device IP address is: ' + localIPAddr)
