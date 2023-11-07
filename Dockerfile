@@ -8,16 +8,15 @@ LABEL site.local.os.version="3.17"
 LABEL site.local.runtime.name="Python"
 LABEL site.local.runtime.version="3.10.9"
 LABEL site.local.program.name="Python Modbus TCP Server"
-LABEL site.local.program.version="1.1.3"
+LABEL site.local.program.version="1.1.4"
 
-RUN addgroup -g 1000 -S pythonuser \
-    && adduser -u 1000 -S pythonuser -G pythonuser \
-    && mkdir -p /app \
-    && pip3 install --no-cache-dir 'pymodbus>=2,<3'
-COPY --chown=root:root app/* /app/
+COPY --chown=root:root /src /
 
-USER pythonuser
+RUN pip3 install --no-cache-dir -r /requirements.txt
+
 EXPOSE 5020/tcp
+
+USER 1434:1434
 
 # Start Server
 ENTRYPOINT ["python", "-u", "/app/modbus_server.py"]
