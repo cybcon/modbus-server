@@ -6,7 +6,8 @@ Source code: [GitHub](https://github.com/cybcon/modbus-server)
 
 # Supported tags and respective `Dockerfile` links
 
-* [`latest`, `1.1.3`](https://github.com/cybcon/modbus-server/blob/v1.1.3/Dockerfile)
+* [`latest`, `1.1.4`](https://github.com/cybcon/modbus-server/blob/v1.1.4/Dockerfile)
+* [`1.1.3`](https://github.com/cybcon/modbus-server/blob/v1.1.3/Dockerfile)
 * [`1.1.2`](https://github.com/cybcon/modbus-server/blob/v1.1.2/Dockerfile)
 
 # What is Modbus TCP Server?
