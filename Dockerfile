@@ -8,7 +8,7 @@ LABEL site.local.os.version="3.17"
 LABEL site.local.runtime.name="Python"
 LABEL site.local.runtime.version="3.10.9"
 LABEL site.local.program.name="Python Modbus TCP Server"
-LABEL site.local.program.version="1.1.4"
+LABEL site.local.program.version="1.1.5"
 
 COPY --chown=root:root /src /
 

@@ -4,7 +4,7 @@ Modbus TCP server script for debugging
 Author: Michael Oberdorf IT-Consulting
 Datum: 2020-03-30
 Last modified by: Hackergarden Meetup@Codecentric
-Last modified at: 2023-11-07
+Last modified at: 2023-11-08
 *************************************************************************** """
 import sys
 import os
@@ -21,7 +21,7 @@ import json
 
 # default configuration file path
 config_file='/app/modbus_server.json'
-VERSION='1.1.4'
+VERSION='1.1.5'
 """
 ###############################################################################
 # F U N C T I O N S

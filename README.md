@@ -8,7 +8,8 @@ Container image: [DockerHub](https://hub.docker.com/repository/docker/oitc/modbu
 
 # Supported tags and respective `Dockerfile` links
 
-* [`latest`, `1.1.4`](https://github.com/cybcon/modbus-server/blob/v1.1.4/Dockerfile)
+* [`latest`, `1.1.5`](https://github.com/cybcon/modbus-server/blob/v1.1.5/Dockerfile)
+* [`1.1.4`](https://github.com/cybcon/modbus-server/blob/v1.1.4/Dockerfile)
 * [`1.1.3`](https://github.com/cybcon/modbus-server/blob/v1.1.3/Dockerfile)
 * [`1.1.2`](https://github.com/cybcon/modbus-server/blob/v1.1.2/Dockerfile)
 
