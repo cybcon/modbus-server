@@ -91,26 +91,26 @@ The `/app/modbus_server.json` file comes with following content:
 
 ### Field description
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `server` | Object  | Modbus slave specific runtime parameters. |
-| `server.listenerAddress` | String | The IPv4 Address to bound to when starting the server. `"0.0.0.0"` let the server listens on all interface addresses. |
-| `server.listenerPort` | Integer | The TCP port number of the modbus slave to listen to. |
-| `server.tlsParams` | Object | Configuration parameters to use TLS encrypted modbus tcp slave. (untested) |
-| `server.tlsParams.description` | String  | No configuration option, just a description of the parameters. |
-| `server.tlsParams.privateKey`  | String  | Filesystem path of the private key to use for a TLS encrypted communication. |
-| `server.tlsParams.certificate`  | String  | Filesystem path of the TLS certificate to use for a TLS encrypted communication. |
-| `server.logging`  | Object  | Log specific configuration. |
-| `server.logging.format` | String  | The format of the log messages as described here: https://docs.python.org/3/library/logging.html#logrecord-attributes |
-| `server.logging.logLevel` | String | Defines the maximum level of severity to log to std out. Possible values are `DEBUG`, `INFO`, `WARN` and `ERROR`. |
-| `registers` | Object  | Configuration parameters to predefine registers. |
-| `registers.description` | String  | No configuration option, just a description of the parameters. |
-| `registers.zeroMode` | Boolean | By default the modbus registers starts at 1 (`false`) but some implementation requires to start at 0 (`true`). |
-| `registers.initializeUndefinedRegisters` | Boolean | If `true` the server will initialize all not defined registers with a default value of `0`. |
-| `registers.discreteInput` | Object  | The pre-defined registers of the register type "Discrete Input". |
-| `registers.coils` | Object  | The pre-defined registers of the register type "Coils". |
-| `registers.holdingRegister` | Object  | The pre-defined registers of the register type "Holding Registers". |
-| `registers.inputRegister` | Object  | The pre-defined registers of the register type "Input Registers". |
+| Field                                    | Type    | Description                                                                                                           |
+|------------------------------------------|---------|-----------------------------------------------------------------------------------------------------------------------|
+| `server`                                 | Object  | Modbus slave specific runtime parameters.                                                                             |
+| `server.listenerAddress`                 | String  | The IPv4 Address to bound to when starting the server. `"0.0.0.0"` let the server listens on all interface addresses. |
+| `server.listenerPort`                    | Integer | The TCP port number of the modbus slave to listen to.                                                                 |
+| `server.tlsParams`                       | Object  | Configuration parameters to use TLS encrypted modbus tcp slave. (untested)                                            |
+| `server.tlsParams.description`           | String  | No configuration option, just a description of the parameters.                                                        |
+| `server.tlsParams.privateKey`            | String  | Filesystem path of the private key to use for a TLS encrypted communication.                                          |
+| `server.tlsParams.certificate`           | String  | Filesystem path of the TLS certificate to use for a TLS encrypted communication.                                      |
+| `server.logging`                         | Object  | Log specific configuration.                                                                                           |
+| `server.logging.format`                  | String  | The format of the log messages as described here: https://docs.python.org/3/library/logging.html#logrecord-attributes |
+| `server.logging.logLevel`                | String  | Defines the maximum level of severity to log to std out. Possible values are `DEBUG`, `INFO`, `WARN` and `ERROR`.     |
+| `registers`                              | Object  | Configuration parameters to predefine registers.                                                                      |
+| `registers.description`                  | String  | No configuration option, just a description of the parameters.                                                        |
+| `registers.zeroMode`                     | Boolean | By default the modbus registers starts at 1 (`false`) but some implementation requires to start at 0 (`true`).        |
+| `registers.initializeUndefinedRegisters` | Boolean | If `true` the server will initialize all not defined registers with a default value of `0`.                           |
+| `registers.discreteInput`                | Object  | The pre-defined registers of the register type "Discrete Input".                                                      |
+| `registers.coils`                        | Object  | The pre-defined registers of the register type "Coils".                                                               |
+| `registers.holdingRegister`              | Object  | The pre-defined registers of the register type "Holding Registers".                                                   |
+| `registers.inputRegister`                | Object  | The pre-defined registers of the register type "Input Registers".                                                     |
 
 ### Pre-define Registers within the configuration file
 
