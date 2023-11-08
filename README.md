@@ -74,7 +74,7 @@ The `/app/modbus_server.json` file comes with following content:
     },
   "logging": {
     "format": "%(asctime)-15s %(threadName)-15s  %(levelname)-8s %(module)-15s:%(lineno)-8s %(message)s",
-    "logLevel": "DEBUG"
+    "logLevel": "INFO"
     }
   },
 "registers": {
