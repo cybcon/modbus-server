@@ -4,7 +4,7 @@ Maintained by: [Michael Oberdorf IT-Consulting](https://www.oberdorf-itc.de/)
 
 Source code: [GitHub](https://github.com/cybcon/modbus-server)
 
-Container image: [DockerHub](https://hub.docker.com/repository/docker/oitc/modbus-server)
+Container image: [DockerHub](https://hub.docker.com/r/oitc/modbus-server)
 
 # Supported tags and respective `Dockerfile` links
 
