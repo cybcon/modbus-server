@@ -8,7 +8,8 @@ Container image: [DockerHub](https://hub.docker.com/r/oitc/modbus-server)
 
 # Supported tags and respective `Dockerfile` links
 
-* [`latest`, `1.1.5`](https://github.com/cybcon/modbus-server/blob/v1.1.5/Dockerfile)
+* [`latest`, `1.2.0`](https://github.com/cybcon/modbus-server/blob/v1.2.0/Dockerfile)
+* [`1.1.5`](https://github.com/cybcon/modbus-server/blob/v1.1.5/Dockerfile)
 * [`1.1.4`](https://github.com/cybcon/modbus-server/blob/v1.1.4/Dockerfile)
 * [`1.1.3`](https://github.com/cybcon/modbus-server/blob/v1.1.3/Dockerfile)
 * [`1.1.2`](https://github.com/cybcon/modbus-server/blob/v1.1.2/Dockerfile)
@@ -132,6 +133,7 @@ Example configuration of pre-defined registers from type "Discrete Input" or "Co
 ```
 
 As by the modbus spec, the "Holding Registers" and "Input Registers" tables contains a 16-bit word. In the json configuration file, we use a hexadecimal notation, starting with `0x`, as register values.
+With v1.2.0 of the modbus-server, you can also use integer values (0-65535) instead.
 
 Example configuration of pre-defined registers from type "Holding Registers" or "Input Registers":
 ```

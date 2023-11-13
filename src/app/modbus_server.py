@@ -3,8 +3,8 @@
 Modbus TCP server script for debugging
 Author: Michael Oberdorf IT-Consulting
 Datum: 2020-03-30
-Last modified by: Hackergarden Meetup@Codecentric
-Last modified at: 2023-11-08
+Last modified by: Michael Oberdorf
+Last modified at: 2023-11-13
 *************************************************************************** """
 import sys
 import os
@@ -21,7 +21,7 @@ import json
 
 # default configuration file path
 config_file='/app/modbus_server.json'
-VERSION='1.1.5'
+VERSION='1.2.0'
 """
 ###############################################################################
 # F U N C T I O N S
@@ -123,7 +123,7 @@ def run_server(listener_address: str = '0.0.0.0', listener_port: int = 5020, tls
     identity.VendorUrl = 'http://github.com/riptideio/pymodbus/'
     identity.ProductName = 'Pymodbus Server'
     identity.ModelName = 'Pymodbus Server'
-    identity.MajorMinorRevision = '2.3.0'
+    identity.MajorMinorRevision = '2.5.3'
 
     # ----------------------------------------------------------------------- #
     # run the server
@@ -156,27 +156,33 @@ def prepareRegister(register: dict, initType: str, initializeUndefinedRegisters:
     if len(register) == 0: return(outRegister)
 
     for key in register:
-        if isinstance(key, str):
-            keyOut = int(key, 0)
-            log.debug('  Transform register id: ' + str(key) + ' ('+ str(type(key)) + ') to: ' + str(keyOut) + ' (' + str(type(keyOut)) + ')')
-        else: keyOut = key
+      if isinstance(key, str):
+        keyOut = int(key, 0)
+        log.debug('  Transform register id: ' + str(key) + ' ('+ str(type(key)) + ') to: ' + str(keyOut) + ' (' + str(type(keyOut)) + ')')
+      else: keyOut = key
 
-        val = register[key]
+      val = register[key]
+      valOut = val
+      if initType == 'word' and isinstance(val, str) and str(val)[0:2] == '0x' and len(val) >= 3 and len(val) <= 6:
+        valOut = int(val, 16)
+        log.debug('  Transform value for register: ' + str(keyOut) + ' from: ' + str(val) + ' ('+ str(type(key)) + ') to: ' + str(valOut) + ' (' + str(type(valOut)) + ')')
+      elif initType == 'word' and isinstance(val, int) and val >=0 and val <= 65535:
         valOut = val
-        if initType == 'word' and isinstance(val, str) and str(val)[0:2] == '0x':
-            valOut = int(val, 16)
-            log.debug('  Transform value for register: ' + str(keyOut) + ' from: ' + str(val) + ' ('+ str(type(key)) + ') to: ' + str(valOut) + ' (' + str(type(valOut)) + ')')
-        elif initType == 'boolean':
-            if isinstance(val, bool):
-              valOut = val
-              log.debug('  Set register: ' + str(keyOut) + ' to: ' + str(valOut) + ' (' + str(type(valOut)) + ')')
-            elif isinstance(val, int):
-              if val == 0:
-                valOut = False
-              else:
-                valOut = True
-              log.debug('  Transform value for register: ' + str(keyOut) + ' from: ' + str(val) + ' ('+ str(type(key)) + ') to: ' + str(valOut) + ' (' + str(type(valOut)) + ')')
-        outRegister[keyOut] = valOut
+        log.debug('  Use value for register: {}: {}'.format(str(keyOut), str(valOut)))
+      elif initType == 'boolean':
+        if isinstance(val, bool):
+          valOut = val
+          log.debug('  Set register: ' + str(keyOut) + ' to: ' + str(valOut) + ' (' + str(type(valOut)) + ')')
+        elif isinstance(val, int):
+          if val == 0:
+            valOut = False
+          else:
+            valOut = True
+          log.debug('  Transform value for register: ' + str(keyOut) + ' from: ' + str(val) + ' ('+ str(type(key)) + ') to: ' + str(valOut) + ' (' + str(type(valOut)) + ')')
+      else:
+        log.error('  Malformed input or input is out of range for register: {} -> value is {} - skip this register initialization!'.format(str(keyOut), str(val)))
+        continue
+      outRegister[keyOut] = valOut
 
     if initializeUndefinedRegisters:
         if initType == 'word':
