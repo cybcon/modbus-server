@@ -38,6 +38,41 @@ jobs:
         with:
           name: container-build
           path: /tmp/container.tar
+
+  prepare-function-test:
+    name: Container functionality test preparation
+    needs: container-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GIT repository
+        uses: actions/checkout@v3
+      - name: Download container image from artifacts
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: container.tar
+          path: /tmp
+      - name: Load container image file
+        run: |
+          docker load --input /tmp/container.tar
+      - name: Add function test configuration
+        run: |
+          docker commit --change "COPY /example/test.json /test.json" container-build:test test2
+    services:
+      modbus-server:
+        image: container-build:test2
+        ports: 5020:5020
+        options: -f /test.json
+
+  execute-function-test:
+    name: Container functionality test execution
+    needs: prepare-function-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Modbus call
+        run: |
+          docker run --rm oitc/modbus-client:latest -s 127.0.0.1 -p 5020 -t 4 -r 0 -l 10
+
+
   scan:
     name: Container vulnerability scan
     needs: container-build
