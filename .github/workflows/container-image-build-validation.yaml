@@ -63,10 +63,16 @@ jobs:
           if [ -z "${IMAGEID}" ]; then
             exit 1
           fi
-          echo "IMAGEID=${IMAGEID}" >> ${GITHUB_OUTPUT}
+          echo "image_id=${IMAGEID}" >> $GITHUB_OUTPUT
       - name: Add function test configuration
         run: |
-          docker commit --change "COPY /example/test.json /test.json" ${{steps.container-id.outputs.IAMGEID}} ghcr.io/cybcon/modbus-server/container-test:test
+          image_id=${{steps.container-id.outputs.image_id}}
+          echo "Adding test.json to container image ID: ${image_id}"
+          if [ -z "${image_id}" ]; then
+            echo "ERROR in getting container image ID!" >&2
+            exit 1
+          fi
+          docker commit --change "COPY /example/test.json /test.json" ${image_id} ghcr.io/cybcon/modbus-server/container-test:test
       - name: Log in to Github container registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Push container image to Github container registry
