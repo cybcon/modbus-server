@@ -36,40 +36,47 @@ jobs:
       - name: Upload container image as artifact
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: container-build
+          name: container-build:test
           path: /tmp/container.tar
 
-  function-test:
-    name: Container functionality test
+  function-test-preparation:
+    name: Container functionality test preparation
     needs: container-build
     runs-on: ubuntu-latest
-    #steps:
-    #  - name: Checkout GIT repository
-    #    uses: actions/checkout@v3
-    #  - name: Download container image from artifacts
-    #    uses: actions/download-artifact@v3.0.2
-    #    with:
-    #      name: container.tar
-    #      path: /tmp
-    #  - name: Load container image file
-    #    run: |
-    #      docker load --input /tmp/container.tar
-    #  - name: Add function test configuration
-    #    run: |
-    #      docker commit --change "COPY /example/test.json /test.json" container-build:test container-build:test2
-    #  - name: Push container image to GitHub packages
-    #    run: |
-    #      docker
+    steps:
+      - name: Checkout GIT repository
+        uses: actions/checkout@v3
+      - name: Download container image from artifacts
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: container.tar
+          path: /tmp
+      - name: Load container image file
+        run: |
+          docker load --input /tmp/container.tar
+      - name: Add function test configuration
+        run: |
+          docker commit --change "COPY /example/test.json /test.json" container-build:test ghcr.io/cybcon/modbus-server/container-test:test
+      - name: Log in to Github container registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Push container image to Github container registry
+        run: |
+          docker push ghcr.io/cybcon/modbus-server/container-test:test
+
+  function-test-execution:
+    name: Container functionality test execution
+    needs: function-test-preparation
+    runs-on: ubuntu-latest
     services:
       modbus-server:
-        image: container-build:test
+        image: ghcr.io/cybcon/modbus-server/container-test:test
         ports:
           - 5020:5020
-        # options: -f /test.json
+        options: -f /test.json
     steps:
       - name: Modbus call
         run: |
-          docker run --rm oitc/modbus-client:latest -s 127.0.0.1 -p 5020 -t 4 -r 0 -l 10
+          docker run --rm oitc/modbus-client:latest -s 127.0.0.1 -p 5020 -t 4 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
 
   scan:
     name: Container vulnerability scan
