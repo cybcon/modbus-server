@@ -43,26 +43,29 @@ jobs:
     name: Container functionality test preparation
     needs: container-build
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout GIT repository
-        uses: actions/checkout@v3
-      - name: Download container image from artifacts
-        uses: actions/download-artifact@v3.0.2
-        with:
-          name: container.tar
-          path: /tmp
-      - name: Load container image file
-        run: |
-          docker load --input /tmp/container.tar
-      - name: Add function test configuration
-        run: |
-          docker commit --change "COPY /example/test.json /test.json" container-build:test test2
+    #steps:
+    #  - name: Checkout GIT repository
+    #    uses: actions/checkout@v3
+    #  - name: Download container image from artifacts
+    #    uses: actions/download-artifact@v3.0.2
+    #    with:
+    #      name: container.tar
+    #      path: /tmp
+    #  - name: Load container image file
+    #    run: |
+    #      docker load --input /tmp/container.tar
+    #  - name: Add function test configuration
+    #    run: |
+    #      docker commit --change "COPY /example/test.json /test.json" container-build:test container-build:test2
+    #  - name: Push container image to GitHub packages
+    #    run: |
+    #      docker
     services:
       modbus-server:
-        image: container-build:test2
+        image: container-build:test
         ports:
           - 5020:5020
-        options: -f /test.json
+        # options: -f /test.json
 
   execute-function-test:
     name: Container functionality test execution
