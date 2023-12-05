@@ -49,7 +49,7 @@ jobs:
       - name: Download container image from artifacts
         uses: actions/download-artifact@v3.0.2
         with:
-          name: container.tar
+          name: container-build
           path: /tmp
       - name: Load container image file
         run: |
