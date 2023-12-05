@@ -60,7 +60,8 @@ jobs:
     services:
       modbus-server:
         image: container-build:test2
-        ports: 5020:5020
+        ports:
+          - 5020:5020
         options: -f /test.json
 
   execute-function-test:
