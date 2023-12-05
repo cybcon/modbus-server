@@ -39,8 +39,8 @@ jobs:
           name: container-build
           path: /tmp/container.tar
 
-  prepare-function-test:
-    name: Container functionality test preparation
+  function-test:
+    name: Container functionality test
     needs: container-build
     runs-on: ubuntu-latest
     #steps:
@@ -66,16 +66,10 @@ jobs:
         ports:
           - 5020:5020
         # options: -f /test.json
-
-  #execute-function-test:
-  #  name: Container functionality test execution
-  #  needs: prepare-function-test
-  #  runs-on: ubuntu-latest
-  #  steps:
-  #    - name: Modbus call
-  #      run: |
-  #        docker run --rm oitc/modbus-client:latest -s 127.0.0.1 -p 5020 -t 4 -r 0 -l 10
-
+    steps:
+      - name: Modbus call
+        run: |
+          docker run --rm oitc/modbus-client:latest -s 127.0.0.1 -p 5020 -t 4 -r 0 -l 10
 
   scan:
     name: Container vulnerability scan
