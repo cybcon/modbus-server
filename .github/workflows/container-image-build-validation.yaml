@@ -57,11 +57,16 @@ jobs:
       - name: Get container image ID
         id: container-id
         run: |
+          docker images
           IMAGEID=$(docker images | grep ^container-build | grep test | awk '{print $3}')
+          echo "Image ID of container is: ${IMAGEID}"
+          if [ -z "${IMAGEID}" ]; then
+            exit 1
+          fi
           echo "IMAGEID=${IMAGEID}" >> ${GITHUB_OUTPUT}
       - name: Add function test configuration
         run: |
-          docker commit --change "COPY /example/test.json /test.json" :${{steps.container-id.outputs.IAMGEID}} ghcr.io/cybcon/modbus-server/container-test:test
+          docker commit --change "COPY /example/test.json /test.json" ${{steps.container-id.outputs.IAMGEID}} ghcr.io/cybcon/modbus-server/container-test:test
       - name: Log in to Github container registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Push container image to Github container registry
