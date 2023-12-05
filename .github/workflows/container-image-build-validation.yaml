@@ -1,4 +1,4 @@
-ame:  container-image-build-validation
+name:  container-image-build-validation
 on:
   pull_request:
     types:
