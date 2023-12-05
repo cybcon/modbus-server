@@ -1,4 +1,4 @@
-name:  container-image-build-validation
+ame:  container-image-build-validation
 on:
   pull_request:
     types:
@@ -54,9 +54,14 @@ jobs:
       - name: Load container image file
         run: |
           docker load --input /tmp/container.tar
+      - name: Get container image ID
+        id: container-id
+        run: |
+          IMAGEID=$(docker images | grep ^container-build | grep test | awk '{print $3}')
+          echo "IMAGEID=${IMAGEID}" >> ${GITHUB_OUTPUT}
       - name: Add function test configuration
         run: |
-          docker commit --change "COPY /example/test.json /test.json" container-build:test ghcr.io/cybcon/modbus-server/container-test:test
+          docker commit --change "COPY /example/test.json /test.json" :${{steps.container-id.outputs.IAMGEID}} ghcr.io/cybcon/modbus-server/container-test:test
       - name: Log in to Github container registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Push container image to Github container registry
