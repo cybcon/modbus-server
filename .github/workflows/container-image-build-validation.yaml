@@ -75,7 +75,7 @@ jobs:
     steps:
       - name: Modbus call
         run: |
-          docker run --rm oitc/modbus-client:latest -s 127.0.0.1 -p 5020 -t 4 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
+          docker run --rm oitc/modbus-client:latest -s modbus-server -p 5020 -t 4 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
 
   scan:
     name: Container vulnerability scan
