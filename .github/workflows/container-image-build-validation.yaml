@@ -72,7 +72,6 @@ jobs:
         image: ghcr.io/cybcon/modbus-server/container-test:test
         ports:
           - 5020:5020
-        options: "-f /test/test.json"
     steps:
       - name: Modbus call
         run: |
