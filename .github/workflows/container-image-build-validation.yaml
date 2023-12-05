@@ -54,25 +54,9 @@ jobs:
       - name: Load container image file
         run: |
           docker load --input /tmp/container.tar
-      - name: Get container image ID
-        id: container-id
+      - name: Re-tag container image
         run: |
-          docker images
-          IMAGEID=$(docker images | grep ^container-build | grep test | awk '{print $3}')
-          echo "Image ID of container is: ${IMAGEID}"
-          if [ -z "${IMAGEID}" ]; then
-            exit 1
-          fi
-          echo "image_id=${IMAGEID}" >> $GITHUB_OUTPUT
-      - name: Add function test configuration
-        run: |
-          image_id=${{steps.container-id.outputs.image_id}}
-          echo "Adding test.json to container image ID: ${image_id}"
-          if [ -z "${image_id}" ]; then
-            echo "ERROR in getting container image ID!" >&2
-            exit 1
-          fi
-          docker commit --change "COPY /example/test.json /test.json" ${image_id} ghcr.io/cybcon/modbus-server/container-test:test
+          docker tag container-build:test ghcr.io/cybcon/modbus-server/container-test:test
       - name: Log in to Github container registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Push container image to Github container registry
@@ -88,7 +72,7 @@ jobs:
         image: ghcr.io/cybcon/modbus-server/container-test:test
         ports:
           - 5020:5020
-        options: -f /test.json
+        options: -f /test/test.json
     steps:
       - name: Modbus call
         run: |
