@@ -93,33 +93,68 @@ jobs:
           echo "## Get Discrete Output Coils" >> ${GITHUB_STEP_SUMMARY}
           echo '```' >> ${GITHUB_STEP_SUMMARY}
           echo "docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 1 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
-          docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 1 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
+          docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 1 -r 0 -l 10 > output.tmp 2>&1
+          cat output.tmp >> ${GITHUB_STEP_SUMMARY}
           echo '```' >> ${GITHUB_STEP_SUMMARY}
-      - name: Test Discrete Output Coils
+          # analyze output
+          RESULT=$(cat output.tmp | grep ^2 | awk '{print $3}')
+          if [ "${RESULT}" == "True" ]; then
+            echo "Test succesfull :white_check_mark:" >> ${GITHUB_STEP_SUMMARY}
+          else
+            echo "Test failed :x:" >> ${GITHUB_STEP_SUMMARY}
+            exit 1
+          fi
+      - name: Test Discrete Input Contacts
         run: |
           modbusserver=${{steps. modbus-server-address.outputs.ip}}
           echo "## Get Discrete Input Contacts" >> ${GITHUB_STEP_SUMMARY}
           echo '```' >> ${GITHUB_STEP_SUMMARY}
           echo "docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 2 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
-          docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 2 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
+          docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 2 -r 0 -l 10 > output.tmp 2>&1
+          cat output.tmp >> ${GITHUB_STEP_SUMMARY}
           echo '```' >> ${GITHUB_STEP_SUMMARY}
+          # analyze output
+          RESULT=$(cat output.tmp | grep ^10002 | awk '{print $3}')
+          if [ "${RESULT}" == "True" ]; then
+            echo "Test succesfull :white_check_mark:" >> ${GITHUB_STEP_SUMMARY}
+          else
+            echo "Test failed :x:" >> ${GITHUB_STEP_SUMMARY}
+            exit 1
+          fi
       - name: Test Analog Output Holding Register
         run: |
           modbusserver=${{steps. modbus-server-address.outputs.ip}}
           echo "## Get Analog Output Holding Register" >> ${GITHUB_STEP_SUMMARY}
           echo '```' >> ${GITHUB_STEP_SUMMARY}
           echo "docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 3 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
-          docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 3 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
+          docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 3 -r 0 -l 10 > output.tmp 2>&1
+          cat output.tmp >> ${GITHUB_STEP_SUMMARY}
           echo '```' >> ${GITHUB_STEP_SUMMARY}
+          # analyze output
+          RESULT=$(cat output.tmp | grep ^40002 | awk '{print $2}')
+          if [ "${RESULT}" == "0xCC03" ]; then
+            echo "Test succesfull :white_check_mark:" >> ${GITHUB_STEP_SUMMARY}
+          else
+            echo "Test failed :x:" >> ${GITHUB_STEP_SUMMARY}
+            exit 1
+          fi
       - name: Test Analog Input Register
         run: |
           modbusserver=${{steps. modbus-server-address.outputs.ip}}
           echo "## Get Analog Input Register" >> ${GITHUB_STEP_SUMMARY}
           echo '```' >> ${GITHUB_STEP_SUMMARY}
           echo "docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 4 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
-          docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 4 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
+          docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 4 -r 0 -l 10 > output.tmp 2>&1
+          cat output.tmp >> ${GITHUB_STEP_SUMMARY}
           echo '```' >> ${GITHUB_STEP_SUMMARY}
-
+          # analyze output
+          RESULT=$(cat output.tmp | grep ^30002 | head -1 | awk '{print $2}')
+          if [ "${RESULT}" == "0xDD03" ]; then
+            echo "Test succesfull :white_check_mark:" >> ${GITHUB_STEP_SUMMARY}
+          else
+            echo "Test failed :x:" >> ${GITHUB_STEP_SUMMARY}
+            exit 1
+          fi
 
   scan:
     name: Container vulnerability scan
