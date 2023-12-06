@@ -78,31 +78,31 @@ jobs:
       - name: Test Discrete Output Coils
         run: |
           echo "## Get Discrete Output Coils" >> ${GITHUB_STEP_SUMMARY}
-          echo "```" >> ${GITHUB_STEP_SUMMARY}
+          echo '```' >> ${GITHUB_STEP_SUMMARY}
           echo "docker run --rm oitc/modbus-client:latest -s modbusserver -p 5020 -t 1 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
           docker run --rm oitc/modbus-client:latest -s modbusserver -p 5020 -t 1 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
-          echo "```" >> ${GITHUB_STEP_SUMMARY}
+          echo '```' >> ${GITHUB_STEP_SUMMARY}
       - name: Test Discrete Output Coils
         run: |
           echo "## Get Discrete Input Contacts" >> ${GITHUB_STEP_SUMMARY}
-          echo "```" >> ${GITHUB_STEP_SUMMARY}
+          echo '```' >> ${GITHUB_STEP_SUMMARY}
           echo "docker run --rm oitc/modbus-client:latest -s modbusserver -p 5020 -t 2 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
           docker run --rm oitc/modbus-client:latest -s modbusserver -p 5020 -t 2 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
-          echo "```" >> ${GITHUB_STEP_SUMMARY}
+          echo '```' >> ${GITHUB_STEP_SUMMARY}
       - name: Test Analog Output Holding Register
         run: |
           echo "## Get Analog Output Holding Register" >> ${GITHUB_STEP_SUMMARY}
-          echo "```" >> ${GITHUB_STEP_SUMMARY}
+          echo '```' >> ${GITHUB_STEP_SUMMARY}
           echo "docker run --rm oitc/modbus-client:latest -s modbusserver -p 5020 -t 3 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
           docker run --rm oitc/modbus-client:latest -s modbusserver -p 5020 -t 3 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
-          echo "```" >> ${GITHUB_STEP_SUMMARY}
+          echo '```' >> ${GITHUB_STEP_SUMMARY}
       - name: Test Analog Input Register
         run: |
           echo "## Get Analog Input Register" >> ${GITHUB_STEP_SUMMARY}
-          echo "```" >> ${GITHUB_STEP_SUMMARY}
+          echo '```' >> ${GITHUB_STEP_SUMMARY}
           echo "docker run --rm oitc/modbus-client:latest -s modbusserver -p 5020 -t 4 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
           docker run --rm oitc/modbus-client:latest -s modbusserver -p 5020 -t 4 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
-          echo "```" >> ${GITHUB_STEP_SUMMARY}
+          echo '```' >> ${GITHUB_STEP_SUMMARY}
 
 
   scan:
