@@ -11,6 +11,7 @@ RUN apk upgrade --available --no-cache --update \
     && rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
 
 COPY --chown=root:root /src /
+COPY --chown=root:root /examples/test.json /test.json
 
 RUN pip3 install --no-cache-dir -r /requirements.txt
 

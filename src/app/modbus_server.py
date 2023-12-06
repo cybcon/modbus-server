@@ -4,7 +4,7 @@ Modbus TCP server script for debugging
 Author: Michael Oberdorf IT-Consulting
 Datum: 2020-03-30
 Last modified by: Michael Oberdorf
-Last modified at: 2023-11-13
+Last modified at: 2023-12-06
 *************************************************************************** """
 import sys
 import os
@@ -20,8 +20,8 @@ import argparse
 import json
 
 # default configuration file path
-config_file='/app/modbus_server.json'
-VERSION='1.2.0'
+default_config_file='/app/modbus_server.json'
+VERSION='1.3.0'
 """
 ###############################################################################
 # F U N C T I O N S
@@ -206,18 +206,33 @@ def prepareRegister(register: dict, initType: str, initializeUndefinedRegisters:
 # M A I N
 ###############################################################################
 """
+# intialize variable
+config_file=None
+
+# Parsing environment variables
+if 'CONFIG_FILE' in os.environ:
+  if not os.path.isfile(os.environ['CONFIG_FILE']):
+    print('ERROR:', 'configuration file not exist:', os.environ['CONFIG_FILE'])
+    sys.exit(1)
+  else:
+    config_file=os.environ['CONFIG_FILE']
+
 
 # Parsing command line arguments
 parser = argparse.ArgumentParser(description='Modbus TCP Server')
 group = parser.add_argument_group()
-group.add_argument('-f', '--config_file', help='The configuration file in json format (default: ' + config_file +')')
+group.add_argument('-f', '--config_file', help='The configuration file in json format (default: ' + default_config_file +')')
 args = parser.parse_args()
 if args.config_file:
-    if not os.path.isfile(args.config_file):
-        print('ERROR:', 'configuration file not exist:', args.config_file)
-        sys.exit(1)
-    else:
-        config_file=args.config_file
+  if not os.path.isfile(args.config_file):
+    print('ERROR:', 'configuration file not exist:', args.config_file)
+    sys.exit(1)
+  else:
+    config_file=args.config_file
+
+# define default if no config file path is set
+if not config_file:
+  config_file=default_config_file
 
 # read configuration file
 with open(config_file, encoding='utf-8') as f:

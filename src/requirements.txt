@@ -1,2 +1,1 @@
-pip >= 23
 pymodbus >= 2, < 3
