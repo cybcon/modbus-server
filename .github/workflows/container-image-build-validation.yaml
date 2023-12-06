@@ -93,12 +93,17 @@ jobs:
           echo "## Get Discrete Output Coils" >> ${GITHUB_STEP_SUMMARY}
           echo '<details>' >> ${GITHUB_STEP_SUMMARY}
           echo '  <summary>Details</summary>' >> ${GITHUB_STEP_SUMMARY}
-          echo '```' >> ${GITHUB_STEP_SUMMARY}
-          echo "docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 1 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
+          echo "" >> ${GITHUB_STEP_SUMMARY}
+          echo '  ```' >> ${GITHUB_STEP_SUMMARY}
+          echo "  docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 1 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
           docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 1 -r 0 -l 10 > output.tmp 2>&1
-          cat output.tmp >> ${GITHUB_STEP_SUMMARY}
-          echo '```' >> ${GITHUB_STEP_SUMMARY}
+          cat output.tmp | while read line
+          do
+            echo "  ${line}" >> ${GITHUB_STEP_SUMMARY}
+          done
+          echo '  ```' >> ${GITHUB_STEP_SUMMARY}
           echo '</details>' >> ${GITHUB_STEP_SUMMARY}
+          echo "" >> ${GITHUB_STEP_SUMMARY}
           # analyze output
           RESULT=$(cat output.tmp | grep ^2 | awk '{print $3}')
           if [ "${RESULT}" == "True" ]; then
