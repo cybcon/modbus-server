@@ -8,7 +8,8 @@ Container image: [DockerHub](https://hub.docker.com/r/oitc/modbus-server)
 
 # Supported tags and respective `Dockerfile` links
 
-* [`latest`, `1.2.0`](https://github.com/cybcon/modbus-server/blob/v1.2.0/Dockerfile)
+* [`latest`, `1.3.0`](https://github.com/cybcon/modbus-server/blob/v1.3.0/Dockerfile)
+* [`1.2.0`](https://github.com/cybcon/modbus-server/blob/v1.2.0/Dockerfile)
 * [`1.1.5`](https://github.com/cybcon/modbus-server/blob/v1.1.5/Dockerfile)
 * [`1.1.4`](https://github.com/cybcon/modbus-server/blob/v1.1.4/Dockerfile)
 * [`1.1.3`](https://github.com/cybcon/modbus-server/blob/v1.1.3/Dockerfile)
@@ -55,11 +56,20 @@ docker run --rm -p 5020:5020 -v ./server_config.json:/app/modbus_server.json oit
 ```
 
 # Configuration
+## Container configuration
+
+The container reads some configuration via environment variables.
+
+| Environment variable name    | Description                                                                        | Required     | Default value             |
+|------------------------------|------------------------------------------------------------------------------------|--------------|---------------------------|
+| `CONFIG_FILE`                | The configuration file that that should be used to build the initial Modbus slave. | **OPTIONAL** | `/app/modbus_server.json` |
+
+
+## Parameter
+Alternatively, the container can also be configured with a command line option `-f <file>` instead of an environment variable. By default, the script will use `/app/modbus_server.json`.
+
 
 ## Configuration file
-
-The path and filename to the general configuration file can be set via command option `-f <file>` after mounting it inside of the container. By default, the script will use `/app/modbus_server.json`.
-
 ### Default configuration file of the container
 
 The `/app/modbus_server.json` file comes with following content:
