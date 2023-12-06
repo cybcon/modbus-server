@@ -75,6 +75,14 @@ jobs:
         run: |
           docker pull oitc/modbus-client:latest
           echo "# Modbus functionality test" >> ${GITHUB_STEP_SUMMARY}
+      - name: Validate server endpoint
+        run: |
+          ping -c 1 -q modbusserver
+          RC=$?
+          if [ ${RC} -gt 0 ]; then
+            echo "ERROR: Modbus slave not reachable" >&2
+            exit 1
+          fi
       - name: Test Discrete Output Coils
         run: |
           echo "## Get Discrete Output Coils" >> ${GITHUB_STEP_SUMMARY}
