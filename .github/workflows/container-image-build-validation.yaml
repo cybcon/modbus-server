@@ -92,7 +92,7 @@ jobs:
           modbusserver=${{steps. modbus-server-address.outputs.ip}}
           echo "## Get Discrete Output Coils" >> ${GITHUB_STEP_SUMMARY}
           echo '<details>' >> ${GITHUB_STEP_SUMMARY}
-          echo '  <summary>Details</summary>' >> ${GITHUB_STEP_SUMMARY}
+          echo '  <summary>Test output details</summary>' >> ${GITHUB_STEP_SUMMARY}
           echo "" >> ${GITHUB_STEP_SUMMARY}
           echo '  ```' >> ${GITHUB_STEP_SUMMARY}
           echo "  docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 1 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
@@ -117,13 +117,18 @@ jobs:
           modbusserver=${{steps. modbus-server-address.outputs.ip}}
           echo "## Get Discrete Input Contacts" >> ${GITHUB_STEP_SUMMARY}
           echo '<details>' >> ${GITHUB_STEP_SUMMARY}
-          echo '  <summary>Details</summary>' >> ${GITHUB_STEP_SUMMARY}
-          echo '```' >> ${GITHUB_STEP_SUMMARY}
-          echo "docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 2 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
+          echo '  <summary>Test output details</summary>' >> ${GITHUB_STEP_SUMMARY}
+          echo "" >> ${GITHUB_STEP_SUMMARY}
+          echo '  ```' >> ${GITHUB_STEP_SUMMARY}
+          echo "  docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 2 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
           docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 2 -r 0 -l 10 > output.tmp 2>&1
-          cat output.tmp >> ${GITHUB_STEP_SUMMARY}
-          echo '```' >> ${GITHUB_STEP_SUMMARY}
+          cat output.tmp | while read line
+          do
+            echo "  ${line}" >> ${GITHUB_STEP_SUMMARY}
+          done
+          echo '  ```' >> ${GITHUB_STEP_SUMMARY}
           echo '</details>' >> ${GITHUB_STEP_SUMMARY}
+          echo "" >> ${GITHUB_STEP_SUMMARY}
           # analyze output
           RESULT=$(cat output.tmp | grep ^10002 | awk '{print $3}')
           if [ "${RESULT}" == "True" ]; then
@@ -137,13 +142,18 @@ jobs:
           modbusserver=${{steps. modbus-server-address.outputs.ip}}
           echo "## Get Analog Output Holding Register" >> ${GITHUB_STEP_SUMMARY}
           echo '<details>' >> ${GITHUB_STEP_SUMMARY}
-          echo '  <summary>Details</summary>' >> ${GITHUB_STEP_SUMMARY}
-          echo '```' >> ${GITHUB_STEP_SUMMARY}
-          echo "docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 3 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
+          echo '  <summary>Test output details</summary>' >> ${GITHUB_STEP_SUMMARY}
+          echo "" >> ${GITHUB_STEP_SUMMARY}
+          echo '  ```' >> ${GITHUB_STEP_SUMMARY}
+          echo "  docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 3 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
           docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 3 -r 0 -l 10 > output.tmp 2>&1
-          cat output.tmp >> ${GITHUB_STEP_SUMMARY}
-          echo '```' >> ${GITHUB_STEP_SUMMARY}
+          cat output.tmp | while read line
+          do
+            echo "  ${line}" >> ${GITHUB_STEP_SUMMARY}
+          done
+          echo '  ```' >> ${GITHUB_STEP_SUMMARY}
           echo '</details>' >> ${GITHUB_STEP_SUMMARY}
+          echo "" >> ${GITHUB_STEP_SUMMARY}
           # analyze output
           RESULT=$(cat output.tmp | grep ^40002 | awk '{print $2}')
           if [ "${RESULT}" == "0xCC03" ]; then
@@ -157,13 +167,18 @@ jobs:
           modbusserver=${{steps. modbus-server-address.outputs.ip}}
           echo "## Get Analog Input Register" >> ${GITHUB_STEP_SUMMARY}
           echo '<details>' >> ${GITHUB_STEP_SUMMARY}
-          echo '  <summary>Details</summary>' >> ${GITHUB_STEP_SUMMARY}
-          echo '```' >> ${GITHUB_STEP_SUMMARY}
-          echo "docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 4 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
+          echo '  <summary>Test output details</summary>' >> ${GITHUB_STEP_SUMMARY}
+          echo "" >> ${GITHUB_STEP_SUMMARY}
+          echo '  ```' >> ${GITHUB_STEP_SUMMARY}
+          echo "  docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 4 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
           docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 4 -r 0 -l 10 > output.tmp 2>&1
-          cat output.tmp >> ${GITHUB_STEP_SUMMARY}
-          echo '```' >> ${GITHUB_STEP_SUMMARY}
+          cat output.tmp | while read line
+          do
+            echo "  ${line}" >> ${GITHUB_STEP_SUMMARY}
+          done
+          echo '  ```' >> ${GITHUB_STEP_SUMMARY}
           echo '</details>' >> ${GITHUB_STEP_SUMMARY}
+          echo "" >> ${GITHUB_STEP_SUMMARY}
           # analyze output
           RESULT=$(cat output.tmp | grep ^30002 | head -1 | awk '{print $2}')
           if [ "${RESULT}" == "0xDD03" ]; then
