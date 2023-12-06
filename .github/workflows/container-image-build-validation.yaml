@@ -74,7 +74,7 @@ jobs:
           echo "# Modbus functionality test" >> ${GITHUB_STEP_SUMMARY}
       - name: Get modbus server address
         id: modbus-server-address
-         run: |
+        run: |
           LOCAL_MACHINE=$(ifconfig -a eth0|grep inet|grep -v 127.0.0.1|grep -v inet6|awk '{print $2}'|tr -d "addr:")
           echo "DEBUG: ${LOCAL_MACHINE}"
           echo "ip=${LOCAL_MACHINE}" >> $GITHUB_OUTPUT
