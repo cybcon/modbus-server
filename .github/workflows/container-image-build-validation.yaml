@@ -57,7 +57,6 @@ jobs:
           push: true
           load: false
           context: .
-          platforms: linux/amd64, linux/arm64
           tags: ghcr.io/cybcon/modbus-server/modbus-server:test
 
   function-test-execution:
