@@ -20,4 +20,3 @@ USER 1434:1434
 
 # Start Server
 ENTRYPOINT ["python", "-u", "/app/modbus_server.py"]
-CMD ["-f", "/app/modbus_server.json"]
