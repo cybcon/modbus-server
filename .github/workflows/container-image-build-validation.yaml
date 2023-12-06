@@ -41,7 +41,6 @@ jobs:
 
   function-test-preparation:
     name: Container functionality test preparation
-    needs: container-build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout GIT repository
