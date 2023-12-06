@@ -45,20 +45,6 @@ jobs:
     steps:
       - name: Checkout GIT repository
         uses: actions/checkout@v3
-      - name: Enhance Dockerfile with test.json
-        run: |
-          if [ ! -f "./Dockerfile" ]; then
-            echo "ERROR: File not found exception for Dockerfile" >&2
-            exit 1
-          fi
-          echo "====================[Original]=========================="
-          cat Dockerfile
-          echo "========================================================"
-          sed '/EXPOSE 5020\/tcp/i COPY /examples/test.json /test.json' ./Dockerfile || exit 1
-          echo "====================[Modified]=========================="
-          cat Dockerfile
-          echo "========================================================"
-
       - name: Log in to Github container registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Build container for functionality test
@@ -67,6 +53,7 @@ jobs:
           push: true
           load: false
           context: .
+          file: ./Dockerfile.test
           tags: ghcr.io/cybcon/modbus-server/modbus-server:test
 
   function-test-execution:
@@ -85,9 +72,16 @@ jobs:
         run: |
           docker pull oitc/modbus-client:latest
           echo "# Modbus functionality test" >> ${GITHUB_STEP_SUMMARY}
+      - name: Get modbus server address
+        id: modbus-server-address
+         run: |
+          LOCAL_MACHINE=$(ifconfig -a eth0|grep inet|grep -v 127.0.0.1|grep -v inet6|awk '{print $2}'|tr -d "addr:")
+          echo "DEBUG: ${LOCAL_MACHINE}"
+          echo "ip=${LOCAL_MACHINE}" >> $GITHUB_OUTPUT
       - name: Validate server endpoint
         run: |
-          ping -c 1 -q modbusserver
+          modbusserver=${{steps. modbus-server-address.outputs.ip}}
+          ping -c 1 -q ${modbusserver}
           RC=$?
           if [ ${RC} -gt 0 ]; then
             echo "ERROR: Modbus slave not reachable" >&2
@@ -95,31 +89,35 @@ jobs:
           fi
       - name: Test Discrete Output Coils
         run: |
+          modbusserver=${{steps. modbus-server-address.outputs.ip}}
           echo "## Get Discrete Output Coils" >> ${GITHUB_STEP_SUMMARY}
           echo '```' >> ${GITHUB_STEP_SUMMARY}
-          echo "docker run --rm oitc/modbus-client:latest -s modbusserver -p 5020 -t 1 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
-          docker run --rm oitc/modbus-client:latest -s modbusserver -p 5020 -t 1 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
+          echo "docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 1 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
+          docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 1 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
           echo '```' >> ${GITHUB_STEP_SUMMARY}
       - name: Test Discrete Output Coils
         run: |
+          modbusserver=${{steps. modbus-server-address.outputs.ip}}
           echo "## Get Discrete Input Contacts" >> ${GITHUB_STEP_SUMMARY}
           echo '```' >> ${GITHUB_STEP_SUMMARY}
-          echo "docker run --rm oitc/modbus-client:latest -s modbusserver -p 5020 -t 2 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
-          docker run --rm oitc/modbus-client:latest -s modbusserver -p 5020 -t 2 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
+          echo "docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 2 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
+          docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 2 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
           echo '```' >> ${GITHUB_STEP_SUMMARY}
       - name: Test Analog Output Holding Register
         run: |
+          modbusserver=${{steps. modbus-server-address.outputs.ip}}
           echo "## Get Analog Output Holding Register" >> ${GITHUB_STEP_SUMMARY}
           echo '```' >> ${GITHUB_STEP_SUMMARY}
-          echo "docker run --rm oitc/modbus-client:latest -s modbusserver -p 5020 -t 3 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
-          docker run --rm oitc/modbus-client:latest -s modbusserver -p 5020 -t 3 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
+          echo "docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 3 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
+          docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 3 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
           echo '```' >> ${GITHUB_STEP_SUMMARY}
       - name: Test Analog Input Register
         run: |
+          modbusserver=${{steps. modbus-server-address.outputs.ip}}
           echo "## Get Analog Input Register" >> ${GITHUB_STEP_SUMMARY}
           echo '```' >> ${GITHUB_STEP_SUMMARY}
-          echo "docker run --rm oitc/modbus-client:latest -s modbusserver -p 5020 -t 4 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
-          docker run --rm oitc/modbus-client:latest -s modbusserver -p 5020 -t 4 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
+          echo "docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 4 -r 0 -l 10" >> ${GITHUB_STEP_SUMMARY}
+          docker run --rm oitc/modbus-client:latest -s ${modbusserver} -p 5020 -t 4 -r 0 -l 10 >> ${GITHUB_STEP_SUMMARY}
           echo '```' >> ${GITHUB_STEP_SUMMARY}
 
 
