@@ -10,7 +10,6 @@ import argparse
 import json
 import logging
 import os
-import pathlib
 import socket
 import sys
 from typing import Literal, Optional
@@ -90,7 +89,7 @@ def run_server(
         di = ModbusSequentialDataBlock.create()
 
     log.debug("Initialize coils")
-    if coils:
+    if isinstance(coils, dict) and coils:
         # log.debug('using dictionary from configuration file:')
         # log.debug(coils)
         co = ModbusSparseDataBlock(coils)
@@ -260,8 +259,8 @@ if __name__ == "__main__":
     else:  # will either use the command line argument or the default value
         config_file = args.config_file
     # check if file actually exists
-    if not pathlib.Path(config_file).is_file():
-        print(f"ERROR: configuration file '{args.config_file}' does not exist.")
+    if not os.path.isfile(config_file):
+        print(f"ERROR: configuration file '{config_file}' does not exist.")
         sys.exit(1)
 
     # read configuration file
@@ -279,8 +278,7 @@ if __name__ == "__main__":
         log.setLevel(logging.ERROR)
     else:
         log.setLevel(logging.INFO)
-    FORMAT = CONFIG["server"]["logging"]["format"]
-    logging.basicConfig(format=FORMAT)
+    logging.basicConfig(format=CONFIG["server"]["logging"]["format"])
 
     # start the server
     log.info(f"Starting Modbus TCP Server, v{VERSION}")
