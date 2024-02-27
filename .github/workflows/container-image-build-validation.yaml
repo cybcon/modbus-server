@@ -42,6 +42,7 @@ jobs:
   function-test-preparation:
     name: Container functionality test preparation
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - name: Checkout GIT repository
         uses: actions/checkout@v4
