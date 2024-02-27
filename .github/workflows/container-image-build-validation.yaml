@@ -191,7 +191,7 @@ jobs:
   scan:
     name: Container vulnerability scan
     needs: container-build
-    uses: cybcon/github_workflows/.github/workflows/container-vulnerability-scan.yaml@v1.1.10
+    uses: cybcon/github_workflows/.github/workflows/container-vulnerability-scan.yaml@v1.3.0
     with:
       image_name: container-build:test
       image_artifact_filename: container.tar
