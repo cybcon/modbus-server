@@ -4,7 +4,7 @@ Modbus TCP server script for debugging
 Author: Michael Oberdorf IT-Consulting
 Datum: 2020-03-30
 Last modified by: Michael Oberdorf
-Last modified at: 2024-02-27
+Last modified at: 2024-07-19
 *************************************************************************** """
 import argparse
 import json
@@ -25,7 +25,7 @@ from pymodbus.server.sync import StartTcpServer, StartTlsServer
 
 # default configuration file path
 default_config_file = "/app/modbus_server.json"
-VERSION = "1.3.1"
+VERSION = "1.3.2"
 
 log = logging.getLogger()
 
