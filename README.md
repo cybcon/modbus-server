@@ -236,7 +236,8 @@ SOFTWARE.
 [github-action-release-link]: https://github.com/cybcon/modbus-server/blob/main/.github/workflows/release-from-label.yaml
 [github-action-release-shield]: https://img.shields.io/github/actions/workflow/status/cybcon/modbus-server/release-from-label.yaml?label=release&labelColor=black&logo=githubactions&logoColor=white&style=flat-square
 [github-action-test-link]: https://github.com/cybcon/modbus-server/blob/main/.github/workflows/test.yaml
-[github-action-test-shield]: https://github.com/cybcon/modbus-server/actions/workflows/test.yaml/badge.svg
+[github-action-test-shield-original]: https://github.com/cybcon/modbus-server/actions/workflows/test.yaml/badge.svg
+[github-action-test-shield]: https://img.shields.io/github/actions/workflow/status/cybcon/modbus-server/test.yaml?label=tests&labelColor=black&logo=githubactions&logoColor=white&style=flat-square
 [github-forks-link]: https://github.com/cybcon/modbus-server/network/members
 [github-forks-shield]: https://img.shields.io/github/forks/cybcon/modbus-server?color=8ae8ff&labelColor=black&style=flat-square
 [github-issues-link]: https://github.com/cybcon/modbus-server/issues
