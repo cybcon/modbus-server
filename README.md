@@ -231,9 +231,9 @@ SOFTWARE.
 [docker-size-shield]: https://img.shields.io/docker/image-size/oitc/modbus-server?color=369eff&labelColor=black&style=flat-square
 [docker-stars-link]: https://hub.docker.com/r/oitc/modbus-server
 [docker-stars-shield]: https://img.shields.io/docker/stars/oitc/modbus-server?color=45cc11&labelColor=black&style=flat-square
-[github-action-release-link]: https://github.com/cybcon/modbus-server/blob/main/.github/workflows/release-from-label.yaml
+[github-action-release-link]: https://github.com/cybcon/modbus-server/actions/workflows/release-from-label.yaml
 [github-action-release-shield]: https://img.shields.io/github/actions/workflow/status/cybcon/modbus-server/release-from-label.yaml?label=release&labelColor=black&logo=githubactions&logoColor=white&style=flat-square
-[github-action-test-link]: https://github.com/cybcon/modbus-server/blob/main/.github/workflows/test.yaml
+[github-action-test-link]: https://github.com/cybcon/modbus-server/actions/workflows/test.yaml
 [github-action-test-shield-original]: https://github.com/cybcon/modbus-server/actions/workflows/test.yaml/badge.svg
 [github-action-test-shield]: https://img.shields.io/github/actions/workflow/status/cybcon/modbus-server/test.yaml?label=tests&labelColor=black&logo=githubactions&logoColor=white&style=flat-square
 [github-forks-link]: https://github.com/cybcon/modbus-server/network/members
