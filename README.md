@@ -9,19 +9,19 @@ Container image: [DockerHub](https://hub.docker.com/r/oitc/modbus-server)
 ## Batches
 
 <!-- SHIELD GROUP -->
-[![][github-action-release-shield]][github-action-release-link]
 [![][github-action-test-shield]][github-action-test-link]
-[![][github-forks-shield]][github-forks-link]
-[![][github-issues-shield]][github-issues-link]
-[![][github-license-shield]][github-license-link]
+[![][github-action-release-shield]][github-action-release-link]
 [![][github-release-shield]][github-release-link]
 [![][github-releasedate-shield]][github-releasedate-link]
 [![][github-stars-shield]][github-stars-link]
+[![][github-forks-shield]][github-forks-link]
+[![][github-issues-shield]][github-issues-link]
+[![][github-license-shield]][github-license-link]
 
-[![][docker-pulls-shield]][docker-pulls-link]
 [![][docker-release-shield]][docker-release-link]
-[![][docker-size-shield]][docker-size-link]
+[![][docker-pulls-shield]][docker-pulls-link]
 [![][docker-stars-shield]][docker-stars-link]
+[![][docker-size-shield]][docker-size-link]
 
 # Supported tags and respective `Dockerfile` links
 
