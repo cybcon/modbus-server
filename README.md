@@ -6,8 +6,6 @@ Source code: [GitHub](https://github.com/cybcon/modbus-server)
 
 Container image: [DockerHub](https://hub.docker.com/r/oitc/modbus-server)
 
-## Batches
-
 <!-- SHIELD GROUP -->
 [![][github-action-test-shield]][github-action-test-link]
 [![][github-action-release-shield]][github-action-release-link]
