@@ -179,6 +179,7 @@ Example configuration of pre-defined registers from type "Holding Registers" or 
 - [src/app/modbus_server.json](https://github.com/cybcon/modbus-server/blob/main/src/app/modbus_server.json)
 - [examples/abb_coretec_example.json](https://github.com/cybcon/modbus-server/blob/main/examples/abb_coretec_example.json)
 - [examples/test.json](https://github.com/cybcon/modbus-server/blob/main/examples/test.json)
+- [examples/udp.json](https://github.com/cybcon/modbus-server/blob/main/examples/udp.json)
 
 
 
