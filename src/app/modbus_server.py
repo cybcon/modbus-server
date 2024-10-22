@@ -4,7 +4,7 @@ Modbus TCP server script for debugging
 Author: Michael Oberdorf IT-Consulting
 Datum: 2020-03-30
 Last modified by: Michael Oberdorf
-Last modified at: 2024-07-19
+Last modified at: 2024-10-22
 *************************************************************************** """
 import argparse
 import json
@@ -21,11 +21,11 @@ from pymodbus.datastore import (
     ModbusSparseDataBlock,
 )
 from pymodbus.device import ModbusDeviceIdentification
-from pymodbus.server.sync import StartTcpServer, StartTlsServer
+from pymodbus.server.sync import StartTcpServer, StartTlsServer, StartUdpServer
 
 # default configuration file path
 default_config_file = "/app/modbus_server.json"
-VERSION = "1.3.2"
+VERSION = "1.4.0"
 
 log = logging.getLogger()
 
@@ -55,6 +55,7 @@ def get_ip_address() -> str:
 def run_server(
     listener_address: str = "0.0.0.0",
     listener_port: int = 5020,
+    protocol: str = "TCP",
     tls_cert: str = None,
     tls_key: str = None,
     zero_mode: bool = False,
@@ -67,6 +68,7 @@ def run_server(
     Run the modbus server(s)
     @param listener_address: string, IP address to bind the listener (default: '0.0.0.0')
     @param listener_port: integer, TCP port to bin the listener (default: 5020)
+    @param protocol: string, defines if the server listenes to TCP or UDP (default: 'TCP')
     @param tls_cert: boolean, path to certificate to start tcp server with TLS (default: None)
     @param tls_key: boolean, path to private key to start tcp server with TLS (default: None)
     @param zero_mode: boolean, request to address(0-7) will map to the address (0-7) instead of (1-8) (default: False)
@@ -157,10 +159,14 @@ def run_server(
             address=(listener_address, listener_port),
         )
     else:
-        log.info(f"Starting Modbus TCP server on {listener_address}:{listener_port}")
-        StartTcpServer(context, identity=identity, address=(listener_address, listener_port))
-        # TCP with different framer
-        # StartTcpServer(context, identity=identity, framer=ModbusRtuFramer, address=(listener_address, listener_port))
+        if protocol == "UDP":
+            log.info(f"Starting Modbus UDP server on {listener_address}:{listener_port}")
+            StartUdpServer(context, identity=identity, address=(listener_address, listener_port))
+        else:
+            log.info(f"Starting Modbus TCP server on {listener_address}:{listener_port}")
+            StartTcpServer(context, identity=identity, address=(listener_address, listener_port))
+            # TCP with different framer
+            # StartTcpServer(context, identity=identity, framer=ModbusRtuFramer, address=(listener_address, listener_port))
 
 
 def prepare_register(
@@ -306,6 +312,10 @@ if __name__ == "__main__":
         initialize_undefined_registers=CONFIG["registers"]["initializeUndefinedRegisters"],
     )
 
+    # add TCP protocol to configuration if not defined
+    if "protocol" not in CONFIG["server"]:
+        CONFIG["server"]["protocol"] = "TCP"
+
     # try to get the interface IP address
     local_ip_addr = get_ip_address()
     if local_ip_addr != "":
@@ -313,6 +323,7 @@ if __name__ == "__main__":
     run_server(
         listener_address=CONFIG["server"]["listenerAddress"],
         listener_port=CONFIG["server"]["listenerPort"],
+        protocol=CONFIG["server"]["protocol"],
         tls_cert=CONFIG["server"]["tlsParams"]["privateKey"],
         tls_key=CONFIG["server"]["tlsParams"]["certificate"],
         zero_mode=CONFIG["registers"]["zeroMode"],
