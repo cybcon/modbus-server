@@ -287,7 +287,7 @@ if __name__ == "__main__":
     logging.basicConfig(format=CONFIG["server"]["logging"]["format"])
 
     # start the server
-    log.info(f"Starting Modbus TCP Server, v{VERSION}")
+    log.info(f"Starting Modbus Server, v{VERSION}")
     log.debug(f"Loaded successfully the configuration file: {config_file}")
 
     # be sure the data types within the dictionaries are correct (json will only allow strings as keys)
