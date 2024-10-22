@@ -2,6 +2,7 @@
 "server": {
   "listenerAddress": "0.0.0.0",
   "listenerPort": 5020,
+  "protocol": "TCP",
   "tlsParams": {
     "description": "path to certificate and private key to enable tls",
     "privateKey": null,

@@ -23,7 +23,8 @@ Container image: [DockerHub](https://hub.docker.com/r/oitc/modbus-server)
 
 # Supported tags and respective `Dockerfile` links
 
-* [`latest`, `1.3.2`](https://github.com/cybcon/modbus-server/blob/v1.3.2/Dockerfile)
+* [`latest`, `1.4.0`](https://github.com/cybcon/modbus-server/blob/v1.4.0/Dockerfile)
+* [`1.3.2`](https://github.com/cybcon/modbus-server/blob/v1.3.2/Dockerfile)
 * [`1.3.1`](https://github.com/cybcon/modbus-server/blob/v1.3.1/Dockerfile)
 * [`1.3.0`](https://github.com/cybcon/modbus-server/blob/v1.3.0/Dockerfile)
 * [`1.2.0`](https://github.com/cybcon/modbus-server/blob/v1.2.0/Dockerfile)
@@ -92,6 +93,7 @@ The `/app/modbus_server.json` file comes with following content:
 "server": {
   "listenerAddress": "0.0.0.0",
   "listenerPort": 5020,
+  "protocol": "TCP",
   "tlsParams": {
     "description": "path to certificate and private key to enable tls",
     "privateKey": null,
@@ -120,7 +122,8 @@ The `/app/modbus_server.json` file comes with following content:
 |------------------------------------------|---------|-----------------------------------------------------------------------------------------------------------------------|
 | `server`                                 | Object  | Modbus slave specific runtime parameters.                                                                             |
 | `server.listenerAddress`                 | String  | The IPv4 Address to bound to when starting the server. `"0.0.0.0"` let the server listens on all interface addresses. |
-| `server.listenerPort`                    | Integer | The TCP port number of the modbus slave to listen to.                                                                 |
+| `server.listenerPort`                    | Integer | The port number of the modbus slave to listen to.                                                                     |
+| `server.protocol`                        | String  | Defines if the server should use `TCP` or `UDP` (default: `TCP`)                                                      |
 | `server.tlsParams`                       | Object  | Configuration parameters to use TLS encrypted modbus tcp slave. (untested)                                            |
 | `server.tlsParams.description`           | String  | No configuration option, just a description of the parameters.                                                        |
 | `server.tlsParams.privateKey`            | String  | Filesystem path of the private key to use for a TLS encrypted communication.                                          |
@@ -176,6 +179,7 @@ Example configuration of pre-defined registers from type "Holding Registers" or 
 - [src/app/modbus_server.json](https://github.com/cybcon/modbus-server/blob/main/src/app/modbus_server.json)
 - [examples/abb_coretec_example.json](https://github.com/cybcon/modbus-server/blob/main/examples/abb_coretec_example.json)
 - [examples/test.json](https://github.com/cybcon/modbus-server/blob/main/examples/test.json)
+- [examples/udp.json](https://github.com/cybcon/modbus-server/blob/main/examples/udp.json)
 
 
 
