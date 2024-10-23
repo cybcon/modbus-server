@@ -1,1 +1,2 @@
 pymodbus >= 2, < 3
+twisted[tls]

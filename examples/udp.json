@@ -2,7 +2,9 @@
 "server": {
   "listenerAddress": "0.0.0.0",
   "listenerPort": 5020,
-  "protocol": "UDP",
+  "protocols": [
+    "UDP"
+  ],
   "tlsParams": {
     "description": "path to certificate and private key to enable tls",
     "privateKey": null,

@@ -4,7 +4,7 @@ Modbus TCP server script for debugging
 Author: Michael Oberdorf IT-Consulting
 Datum: 2020-03-30
 Last modified by: Michael Oberdorf
-Last modified at: 2024-10-22
+Last modified at: 2024-10-23
 *************************************************************************** """
 import argparse
 import json
@@ -21,11 +21,13 @@ from pymodbus.datastore import (
     ModbusSparseDataBlock,
 )
 from pymodbus.device import ModbusDeviceIdentification
-from pymodbus.server.sync import StartTcpServer, StartTlsServer, StartUdpServer
+from pymodbus.server.asynchronous import StartTcpServer, StartUdpServer
+from pymodbus.server.sync import StartTlsServer
+from twisted.internet import reactor
 
 # default configuration file path
 default_config_file = "/app/modbus_server.json"
-VERSION = "1.4.0"
+VERSION = "1.5.0"
 
 log = logging.getLogger()
 
@@ -55,7 +57,7 @@ def get_ip_address() -> str:
 def run_server(
     listener_address: str = "0.0.0.0",
     listener_port: int = 5020,
-    protocol: str = "TCP",
+    protocols: list() = ["TCP"],
     tls_cert: str = None,
     tls_key: str = None,
     zero_mode: bool = False,
@@ -68,7 +70,7 @@ def run_server(
     Run the modbus server(s)
     @param listener_address: string, IP address to bind the listener (default: '0.0.0.0')
     @param listener_port: integer, TCP port to bin the listener (default: 5020)
-    @param protocol: string, defines if the server listenes to TCP or UDP (default: 'TCP')
+    @param protocols: list(string), defines if the server listenes to TCP and/or UDP (default: ['TCP'])
     @param tls_cert: boolean, path to certificate to start tcp server with TLS (default: None)
     @param tls_key: boolean, path to private key to start tcp server with TLS (default: None)
     @param zero_mode: boolean, request to address(0-7) will map to the address (0-7) instead of (1-8) (default: False)
@@ -159,14 +161,22 @@ def run_server(
             address=(listener_address, listener_port),
         )
     else:
-        if protocol == "UDP":
+        if "UDP" in protocols:
             log.info(f"Starting Modbus UDP server on {listener_address}:{listener_port}")
-            StartUdpServer(context, identity=identity, address=(listener_address, listener_port))
-        else:
+            StartUdpServer(
+                context, identity=identity, address=(listener_address, listener_port), defer_reactor_run=True
+            )
+        if "TCP" in protocols:
             log.info(f"Starting Modbus TCP server on {listener_address}:{listener_port}")
-            StartTcpServer(context, identity=identity, address=(listener_address, listener_port))
-            # TCP with different framer
-            # StartTcpServer(context, identity=identity, framer=ModbusRtuFramer, address=(listener_address, listener_port))
+            StartTcpServer(
+                context, identity=identity, address=(listener_address, listener_port), defer_reactor_run=True
+            )
+        if "UDP" not in protocols and "TCP" not in protocols:
+            log.error(f"Unknown how to handle protocols [{protocols}]")
+            sys.exit(1)
+
+        # go into an infinite loop while async servers are running
+        reactor.run()
 
 
 def prepare_register(
@@ -313,8 +323,8 @@ if __name__ == "__main__":
     )
 
     # add TCP protocol to configuration if not defined
-    if "protocol" not in CONFIG["server"]:
-        CONFIG["server"]["protocol"] = "TCP"
+    if "protocols" not in CONFIG["server"]:
+        CONFIG["server"]["protocols"] = ["TCP"]
 
     # try to get the interface IP address
     local_ip_addr = get_ip_address()
@@ -323,7 +333,7 @@ if __name__ == "__main__":
     run_server(
         listener_address=CONFIG["server"]["listenerAddress"],
         listener_port=CONFIG["server"]["listenerPort"],
-        protocol=CONFIG["server"]["protocol"],
+        protocols=CONFIG["server"]["protocols"],
         tls_cert=CONFIG["server"]["tlsParams"]["privateKey"],
         tls_key=CONFIG["server"]["tlsParams"]["certificate"],
         zero_mode=CONFIG["registers"]["zeroMode"],

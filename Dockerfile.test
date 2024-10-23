@@ -1,7 +1,7 @@
 FROM alpine:3.20.3
 
 LABEL maintainer="Michael Oberdorf IT-Consulting <info@oberdorf-itc.de>"
-LABEL site.local.program.version="1.4.0"
+LABEL site.local.program.version="1.5.0"
 
 RUN apk upgrade --available --no-cache --update \
     && apk add --no-cache --update \
