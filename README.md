@@ -39,6 +39,22 @@ for enhanced tests with modbus masters and to test collecting values from differ
 
 The Modbus specification can be found here: [PDF](https://modbus.org/docs/Modbus_Application_Protocol_V1_1b3.pdf)
 
+# Own Docker builds and version pinning
+
+If you want to build your own container image with the [Dockerfile](./Dockerfile) you should know that the file uses version pinning to have a deterministic environment for the application.
+This is a best bractice and described in [Hadolint DL3018](https://github.com/hadolint/hadolint/wiki/DL3018).
+
+The problem is, that Alpine Linux doesn't keep old versions inside the software repository. When software will be updated, the old (pinned) version will be removed and is so no longer available.
+Docker builds will be successfull today and fail tomorrow.
+
+See also here: https://github.com/hadolint/hadolint/issues/464
+
+
+The [Dockerfile](./Dockerfile) in this repo may have an not working stand of pinned versions. When you run in errors during your own build, please:
+
+1. Update the versions inside the Dockerfile for your own
+2. Don't create an issue in the Github repo, because this is a known issue
+
 
 # QuickStart with Modbus TCP Server and Docker
 
