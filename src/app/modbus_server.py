@@ -29,7 +29,6 @@ VERSION = "1.4.0"
 
 log = logging.getLogger()
 
-
 """
 ###############################################################################
 # F U N C T I O N S
@@ -53,16 +52,16 @@ def get_ip_address() -> str:
 
 
 def run_server(
-    listener_address: str = "0.0.0.0",
-    listener_port: int = 5020,
-    protocol: str = "TCP",
-    tls_cert: str = None,
-    tls_key: str = None,
-    zero_mode: bool = False,
-    discrete_inputs: Optional[dict] = None,
-    coils: Optional[dict] = None,
-    holding_registers: Optional[dict] = None,
-    input_registers: Optional[dict] = None,
+        listener_address: str = "0.0.0.0",
+        listener_port: int = 5020,
+        protocol: str = "TCP",
+        tls_cert: str = None,
+        tls_key: str = None,
+        zero_mode: bool = False,
+        discrete_inputs: Optional[dict] = None,
+        coils: Optional[dict] = None,
+        holding_registers: Optional[dict] = None,
+        input_registers: Optional[dict] = None,
 ):
     """
     Run the modbus server(s)
@@ -78,55 +77,93 @@ def run_server(
     @param input_registers: dict(), initial addresses and their values (default: dict())
     """
 
-    # initialize data store
-    log.debug("Initialize discrete input")
-    if isinstance(discrete_inputs, dict) and discrete_inputs:
-        # log.debug('using dictionary from configuration file:')
-        # log.debug(discreteInputs)
-        di = ModbusSparseDataBlock(discrete_inputs)
-    else:
-        # log.debug('set all registers to 0xaa')
-        # di = ModbusSequentialDataBlock(0x00, [0xaa]*65536)
-        log.debug("set all registers to 0x00")
-        di = ModbusSequentialDataBlock.create()
+    run_server2(listener_address, listener_port, protocol, tls_cert, tls_key, {"255": {
+        "discreteInput": discrete_inputs,
+        "coils": coils,
+        "holdingRegister": holding_registers,
+        "inputRegister": input_registers,
+        "zeroMode": zero_mode,
+    }})
 
-    log.debug("Initialize coils")
-    if isinstance(coils, dict) and coils:
-        # log.debug('using dictionary from configuration file:')
-        # log.debug(coils)
-        co = ModbusSparseDataBlock(coils)
-    else:
-        # log.debug('set all registers to 0xbb')
-        # co = ModbusSequentialDataBlock(0x00, [0xbb]*65536)
-        log.debug("set all registers to 0x00")
-        co = ModbusSequentialDataBlock.create()
 
-    log.debug("Initialize holding registers")
-    if isinstance(holding_registers, dict) and holding_registers:
-        # log.debug('using dictionary from configuration file:')
-        # log.debug(holdingRegisters)
-        hr = ModbusSparseDataBlock(holding_registers)
-    else:
-        # log.debug('set all registers to 0xcc')
-        # hr = ModbusSequentialDataBlock(0x00, [0xcc]*65536)
-        log.debug("set all registers to 0x00")
-        hr = ModbusSequentialDataBlock.create()
+def run_server2(
+        listener_address: str = "0.0.0.0",
+        listener_port: int = 5020,
+        protocol: str = "TCP",
+        tls_cert: str = None,
+        tls_key: str = None,
+        devices: Optional[dict] = None,
+):
+    """
+        Run the modbus server(s)
+        @param listener_address: string, IP address to bind the listener (default: '0.0.0.0')
+        @param listener_port: integer, TCP port to bin the listener (default: 5020)
+        @param protocol: string, defines if the server listenes to TCP or UDP (default: 'TCP')
+        @param tls_cert: boolean, path to certificate to start tcp server with TLS (default: None)
+        @param tls_key: boolean, path to private key to start tcp server with TLS (default: None)
+        @param zero_mode: boolean, request to address(0-7) will map to the address (0-7) instead of (1-8) (default: False)
+        @param devices: dict(), devices with their addresses and registers
+        """
+    if not devices or len(devices) == 0:
+        log.warning("No devices specified, won't start server")
+        return
+    stores = {}
+    for device_addr, device in devices.items():
+        discrete_inputs = device["discreteInput"]
+        coils = device["coils"]
+        holding_registers = device["holdingRegister"]
+        input_registers = device["inputRegister"]
+        zero_mode = device["zeroMode"]
+        # initialize data store
+        log.debug("Initialize discrete input")
+        if isinstance(discrete_inputs, dict) and discrete_inputs:
+            # log.debug('using dictionary from configuration file:')
+            # log.debug(discreteInputs)
+            di = ModbusSparseDataBlock(discrete_inputs)
+        else:
+            # log.debug('set all registers to 0xaa')
+            # di = ModbusSequentialDataBlock(0x00, [0xaa]*65536)
+            log.debug("set all registers to 0x00")
+            di = ModbusSequentialDataBlock.create()
 
-    log.debug("Initialize input registers")
-    if isinstance(input_registers, dict) and input_registers:
-        # log.debug('using dictionary from configuration file:')
-        # log.debug(inputRegisters)
-        ir = ModbusSparseDataBlock(input_registers)
-    else:
-        # log.debug('set all registers to 0xdd')
-        # ir = ModbusSequentialDataBlock(0x00, [0xdd]*65536)
-        log.debug("set all registers to 0x00")
-        ir = ModbusSequentialDataBlock.create()
+        log.debug("Initialize coils")
+        if isinstance(coils, dict) and coils:
+            # log.debug('using dictionary from configuration file:')
+            # log.debug(coils)
+            co = ModbusSparseDataBlock(coils)
+        else:
+            # log.debug('set all registers to 0xbb')
+            # co = ModbusSequentialDataBlock(0x00, [0xbb]*65536)
+            log.debug("set all registers to 0x00")
+            co = ModbusSequentialDataBlock.create()
 
-    store = ModbusSlaveContext(di=di, co=co, hr=hr, ir=ir, zero_mode=zero_mode)
+        log.debug("Initialize holding registers")
+        if isinstance(holding_registers, dict) and holding_registers:
+            # log.debug('using dictionary from configuration file:')
+            # log.debug(holdingRegisters)
+            hr = ModbusSparseDataBlock(holding_registers)
+        else:
+            # log.debug('set all registers to 0xcc')
+            # hr = ModbusSequentialDataBlock(0x00, [0xcc]*65536)
+            log.debug("set all registers to 0x00")
+            hr = ModbusSequentialDataBlock.create()
+
+        log.debug("Initialize input registers")
+        if isinstance(input_registers, dict) and input_registers:
+            # log.debug('using dictionary from configuration file:')
+            # log.debug(inputRegisters)
+            ir = ModbusSparseDataBlock(input_registers)
+        else:
+            # log.debug('set all registers to 0xdd')
+            # ir = ModbusSequentialDataBlock(0x00, [0xdd]*65536)
+            log.debug("set all registers to 0x00")
+            ir = ModbusSequentialDataBlock.create()
+
+        stores[int(device_addr)] = ModbusSlaveContext(di=di, co=co, hr=hr, ir=ir, zero_mode=zero_mode)
+
 
     log.debug("Define Modbus server context")
-    context = ModbusServerContext(slaves=store, single=True)
+    context = ModbusServerContext(slaves=stores, single=False)
 
     # ----------------------------------------------------------------------- #
     # initialize the server information
@@ -168,11 +205,10 @@ def run_server(
             # TCP with different framer
             # StartTcpServer(context, identity=identity, framer=ModbusRtuFramer, address=(listener_address, listener_port))
 
-
 def prepare_register(
-    register: dict,
-    init_type: Literal["boolean", "word"],
-    initialize_undefined_registers: bool = False,
+        register: dict,
+        init_type: Literal["boolean", "word"],
+        initialize_undefined_registers: bool = False,
 ) -> dict:
     """
     Function to prepare the register to have the correct data types
@@ -242,6 +278,36 @@ def prepare_register(
 
     return out_register
 
+def prepare_device(config: dict) -> dict:
+    # be sure the data types within the dictionaries are correct (json will only allow strings as keys)
+    configured_discrete_inputs = prepare_register(
+        register=config["registers"]["discreteInput"],
+        init_type="boolean",
+        initialize_undefined_registers=config["registers"]["initializeUndefinedRegisters"],
+    )
+    configured_coils = prepare_register(
+        register=config["registers"]["coils"],
+        init_type="boolean",
+        initialize_undefined_registers=config["registers"]["initializeUndefinedRegisters"],
+    )
+    configured_holding_registers = prepare_register(
+        register=config["registers"]["holdingRegister"],
+        init_type="word",
+        initialize_undefined_registers=config["registers"]["initializeUndefinedRegisters"],
+    )
+    configured_input_registers = prepare_register(
+        register=config["registers"]["inputRegister"],
+        init_type="word",
+        initialize_undefined_registers=config["registers"]["initializeUndefinedRegisters"],
+    )
+    return {
+        "discreteInput": configured_discrete_inputs,
+        "coils": configured_coils,
+        "holdingRegister": configured_holding_registers,
+        "inputRegister": configured_input_registers,
+        "zeroMode": config["registers"]["zeroMode"],
+        "description": config["registers"]["description"],
+    }
 
 """
 ###############################################################################
@@ -273,6 +339,11 @@ if __name__ == "__main__":
     with open(config_file, encoding="utf-8") as f:
         CONFIG = json.load(f)
 
+    # get version from configuration file
+    version = "1.0"
+    if "version" in CONFIG:
+        version = CONFIG["version"]
+
     # Initialize logger
     if CONFIG["server"]["logging"]["logLevel"].lower() == "debug":
         log.setLevel(logging.DEBUG)
@@ -290,45 +361,56 @@ if __name__ == "__main__":
     log.info(f"Starting Modbus Server, v{VERSION}")
     log.debug(f"Loaded successfully the configuration file: {config_file}")
 
-    # be sure the data types within the dictionaries are correct (json will only allow strings as keys)
-    configured_discrete_inputs = prepare_register(
-        register=CONFIG["registers"]["discreteInput"],
-        init_type="boolean",
-        initialize_undefined_registers=CONFIG["registers"]["initializeUndefinedRegisters"],
-    )
-    configured_coils = prepare_register(
-        register=CONFIG["registers"]["coils"],
-        init_type="boolean",
-        initialize_undefined_registers=CONFIG["registers"]["initializeUndefinedRegisters"],
-    )
-    configured_holding_registers = prepare_register(
-        register=CONFIG["registers"]["holdingRegister"],
-        init_type="word",
-        initialize_undefined_registers=CONFIG["registers"]["initializeUndefinedRegisters"],
-    )
-    configured_input_registers = prepare_register(
-        register=CONFIG["registers"]["inputRegister"],
-        init_type="word",
-        initialize_undefined_registers=CONFIG["registers"]["initializeUndefinedRegisters"],
-    )
+    if "1.0" == version:
+        device0 = prepare_device(CONFIG)
 
-    # add TCP protocol to configuration if not defined
-    if "protocol" not in CONFIG["server"]:
-        CONFIG["server"]["protocol"] = "TCP"
+        # add TCP protocol to configuration if not defined
+        if "protocol" not in CONFIG["server"]:
+            CONFIG["server"]["protocol"] = "TCP"
 
-    # try to get the interface IP address
-    local_ip_addr = get_ip_address()
-    if local_ip_addr != "":
-        log.info(f"Outbound device IP address is: {local_ip_addr}")
-    run_server(
-        listener_address=CONFIG["server"]["listenerAddress"],
-        listener_port=CONFIG["server"]["listenerPort"],
-        protocol=CONFIG["server"]["protocol"],
-        tls_cert=CONFIG["server"]["tlsParams"]["privateKey"],
-        tls_key=CONFIG["server"]["tlsParams"]["certificate"],
-        zero_mode=CONFIG["registers"]["zeroMode"],
-        discrete_inputs=configured_discrete_inputs,
-        coils=configured_coils,
-        holding_registers=configured_holding_registers,
-        input_registers=configured_input_registers,
-    )
+        # try to get the interface IP address
+        local_ip_addr = get_ip_address()
+        if local_ip_addr != "":
+            log.info(f"Outbound device IP address is: {local_ip_addr}")
+        run_server(
+            listener_address=CONFIG["server"]["listenerAddress"],
+            listener_port=CONFIG["server"]["listenerPort"],
+            protocol=CONFIG["server"]["protocol"],
+            tls_cert=CONFIG["server"]["tlsParams"]["privateKey"],
+            tls_key=CONFIG["server"]["tlsParams"]["certificate"],
+            zero_mode=CONFIG["registers"]["zeroMode"],
+            discrete_inputs=device0["discreteInput"],
+            coils=device0["coils"],
+            holding_registers=device0["holdingRegister"],
+            input_registers=device0["inputRegister"],
+        )
+    elif "2.0" == version:
+        copy_devices = {}
+        configured_devices = {}
+        for device_address in CONFIG["devices"].keys():
+            if "-" in device_address:
+                device_addrs = device_address.split("-")
+                if len(device_addrs) != 2:
+                    log.error(f"Malformed slave name: {device_address} - expected format: 'start-end'")
+                    continue
+                for i in range(int(device_addrs[0]), int(device_addrs[1]) + 1):
+                    if str(i) not in copy_devices:
+                        copy_devices[str(i)] = CONFIG["devices"][device_address]
+            else:
+                if int(device_address) == 0 or int(device_address) > 247:
+                    log.error(f"Invalid slave address: {device_address} - must be between 1 and 247")
+                    continue
+                copy_devices[device_address] = CONFIG["devices"][device_address]
+        for device_address, device0 in copy_devices.items():
+            log.debug(f"Prepare device: {device_address}")
+            configured_devices[device_address] = prepare_device(device0)
+        run_server2(
+            listener_address=CONFIG["server"]["listenerAddress"],
+            listener_port=CONFIG["server"]["listenerPort"],
+            protocol=CONFIG["server"]["protocol"],
+            tls_cert=CONFIG["server"]["tlsParams"]["privateKey"],
+            tls_key=CONFIG["server"]["tlsParams"]["certificate"],
+            devices=configured_devices,
+        )
+    else:
+        log.error("Unexpected input in function prepareRegister")
