@@ -1,12 +1,12 @@
-FROM alpine:3.20.3
+FROM alpine:3.23.2
 
 LABEL maintainer="Michael Oberdorf IT-Consulting <info@oberdorf-itc.de>"
-LABEL site.local.program.version="1.4.0"
+LABEL site.local.program.version="1.4.1"
 
 RUN apk upgrade --available --no-cache --update \
     && apk add --no-cache --update \
-       python3=3.12.7-r0 \
-       py3-pip=24.0-r2 \
+       python3=3.12.12-r0 \
+       py3-pip=25.1.1-r1 \
     # Cleanup APK
     && rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
 
