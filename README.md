@@ -107,55 +107,102 @@ The `/app/modbus_server.json` file comes with following content:
 
 ```json
 {
-"server": {
-  "listenerAddress": "0.0.0.0",
-  "listenerPort": 5020,
-  "protocol": "TCP",
-  "tlsParams": {
-    "description": "path to certificate and private key to enable tls",
-    "privateKey": null,
-    "certificate": null
+  "version": "2.0",
+  "server": {
+    "listenerAddress": "0.0.0.0",
+    "listenerPort": 5020,
+    "protocol": "TCP",
+    "tlsParams": {
+      "description": "path to certificate and private key to enable tls",
+      "privateKey": null,
+      "certificate": null
     },
-  "logging": {
-    "format": "%(asctime)-15s %(threadName)-15s  %(levelname)-8s %(module)-15s:%(lineno)-8s %(message)s",
-    "logLevel": "INFO"
+    "logging": {
+      "format": "%(asctime)-15s %(threadName)-15s  %(levelname)-8s %(module)-15s:%(lineno)-8s %(message)s",
+      "logLevel": "INFO"
     }
   },
-"registers": {
-  "description": "initial values for the register types",
-  "zeroMode": false,
-  "initializeUndefinedRegisters": true,
-  "discreteInput": {},
-  "coils": {},
-  "holdingRegister": {},
-  "inputRegister": {}
+  "devices": {
+    "1": {
+      "registers": {
+        "description": "initial values for the register types",
+        "zeroMode": false,
+        "initializeUndefinedRegisters": true,
+        "discreteInput": {},
+        "coils": {},
+        "holdingRegister": {},
+        "inputRegister": {}
+      }
+    },
+    "2-3": {
+      "registers": {
+        "description": "initial values for the register types",
+        "zeroMode": false,
+        "initializeUndefinedRegisters": true,
+        "discreteInput": {},
+        "coils": {},
+        "holdingRegister": {},
+        "inputRegister": {}
+      }
+    }
   }
 }
 ```
 
+The old version of configuration file is also supported, which looks like this:
+```json
+{
+  "version": "1.0",
+  "server": {
+    "listenerAddress": "0.0.0.0",
+    "listenerPort": 5020,
+    "protocol": "TCP",
+    "tlsParams": {
+      "description": "path to certificate and private key to enable tls",
+      "privateKey": null,
+      "certificate": null
+    },
+    "logging": {
+      "format": "%(asctime)-15s %(threadName)-15s  %(levelname)-8s %(module)-15s:%(lineno)-8s %(message)s",
+      "logLevel": "INFO"
+    }
+  },
+  "registers": {
+    "description": "initial values for the register types",
+    "zeroMode": false,
+    "initializeUndefinedRegisters": true,
+    "discreteInput": {},
+    "coils": {},
+    "holdingRegister": {},
+    "inputRegister": {}
+  }
+}
+```
+The version can be omitted, if omitted, the server will use the old version 1.0 configuration file.
+
 ### Field description
 
-| Field                                    | Type    | Description                                                                                                           |
-|------------------------------------------|---------|-----------------------------------------------------------------------------------------------------------------------|
-| `server`                                 | Object  | Modbus slave specific runtime parameters.                                                                             |
-| `server.listenerAddress`                 | String  | The IPv4 Address to bound to when starting the server. `"0.0.0.0"` let the server listens on all interface addresses. |
-| `server.listenerPort`                    | Integer | The port number of the modbus slave to listen to.                                                                     |
-| `server.protocol`                        | String  | Defines if the server should use `TCP` or `UDP` (default: `TCP`)                                                      |
-| `server.tlsParams`                       | Object  | Configuration parameters to use TLS encrypted modbus tcp slave. (untested)                                            |
-| `server.tlsParams.description`           | String  | No configuration option, just a description of the parameters.                                                        |
-| `server.tlsParams.privateKey`            | String  | Filesystem path of the private key to use for a TLS encrypted communication.                                          |
-| `server.tlsParams.certificate`           | String  | Filesystem path of the TLS certificate to use for a TLS encrypted communication.                                      |
-| `server.logging`                         | Object  | Log specific configuration.                                                                                           |
-| `server.logging.format`                  | String  | The format of the log messages as described here: https://docs.python.org/3/library/logging.html#logrecord-attributes |
-| `server.logging.logLevel`                | String  | Defines the maximum level of severity to log to std out. Possible values are `DEBUG`, `INFO`, `WARN` and `ERROR`.     |
-| `registers`                              | Object  | Configuration parameters to predefine registers.                                                                      |
-| `registers.description`                  | String  | No configuration option, just a description of the parameters.                                                        |
-| `registers.zeroMode`                     | Boolean | By default the modbus registers starts at 1 (`false`) but some implementation requires to start at 0 (`true`).        |
-| `registers.initializeUndefinedRegisters` | Boolean | If `true` the server will initialize all not defined registers with a default value of `0`.                           |
-| `registers.discreteInput`                | Object  | The pre-defined registers of the register type "Discrete Input".                                                      |
-| `registers.coils`                        | Object  | The pre-defined registers of the register type "Coils".                                                               |
-| `registers.holdingRegister`              | Object  | The pre-defined registers of the register type "Holding Registers".                                                   |
-| `registers.inputRegister`                | Object  | The pre-defined registers of the register type "Input Registers".                                                     |
+| Field                                                   | Type    | Description                                                                                                                                                                                            |
+|---------------------------------------------------------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `server`                                                | Object  | Modbus slave specific runtime parameters.                                                                                                                                                              |
+| `server.listenerAddress`                                | String  | The IPv4 Address to bound to when starting the server. `"0.0.0.0"` let the server listens on all interface addresses.                                                                                  |
+| `server.listenerPort`                                   | Integer | The port number of the modbus slave to listen to.                                                                                                                                                      |
+| `server.protocol`                                       | String  | Defines if the server should use `TCP` or `UDP` (default: `TCP`)                                                                                                                                       |
+| `server.tlsParams`                                      | Object  | Configuration parameters to use TLS encrypted modbus tcp slave. (untested)                                                                                                                             |
+| `server.tlsParams.description`                          | String  | No configuration option, just a description of the parameters.                                                                                                                                         |
+| `server.tlsParams.privateKey`                           | String  | Filesystem path of the private key to use for a TLS encrypted communication.                                                                                                                           |
+| `server.tlsParams.certificate`                          | String  | Filesystem path of the TLS certificate to use for a TLS encrypted communication.                                                                                                                       |
+| `server.logging`                                        | Object  | Log specific configuration.                                                                                                                                                                            |
+| `server.logging.format`                                 | String  | The format of the log messages as described here: https://docs.python.org/3/library/logging.html#logrecord-attributes                                                                                  |
+| `server.logging.logLevel`                               | String  | Defines the maximum level of severity to log to std out. Possible values are `DEBUG`, `INFO`, `WARN` and `ERROR`.                                                                                      |
+| `devices`                                               | Object  | The definition of devices, the object attribute name is the slave address in modbus RTU/ASCII, it can use the format like start-end to define multiple devices, which represents `range(start, end+1)` |
+| `devices.{addr}.registers.description`                  | String  | No configuration option, just a description of the parameters.                                                                                                                                         |
+| `devices.{addr}.registers.zeroMode`                     | Boolean | By default the modbus registers starts at 1 (`false`) but some implementation requires to start at 0 (`true`).                                                                                         |
+| `devices.{addr}.registers.initializeUndefinedRegisters` | Boolean | If `true` the server will initialize all not defined registers with a default value of `0`.                                                                                                            |
+| `devices.{addr}.registers.discreteInput`                | Object  | The pre-defined registers of the register type "Discrete Input".                                                                                                                                       |
+| `devices.{addr}.registers.coils`                        | Object  | The pre-defined registers of the register type "Coils".                                                                                                                                                |
+| `devices.{addr}.registers.holdingRegister`              | Object  | The pre-defined registers of the register type "Holding Registers".                                                                                                                                    |
+| `devices.{addr}.registers.inputRegister`                | Object  | The pre-defined registers of the register type "Input Registers".                                                                                                                                      |
 
 ### Pre-define Registers within the configuration file
 
@@ -197,7 +244,8 @@ Example configuration of pre-defined registers from type "Holding Registers" or 
 - [examples/abb_coretec_example.json](https://github.com/cybcon/modbus-server/blob/main/examples/abb_coretec_example.json)
 - [examples/test.json](https://github.com/cybcon/modbus-server/blob/main/examples/test.json)
 - [examples/udp.json](https://github.com/cybcon/modbus-server/blob/main/examples/udp.json)
-
+- [examples/modbus_server_v1.json](https://github.com/cybcon/modbus-server/blob/main/examples/modbus_server_v1.json)
+- [examples/modbus_server_v2.json](https://github.com/cybcon/modbus-server/blob/main/examples/modbus_server_v2.json)
 
 
 # Docker compose configuration
