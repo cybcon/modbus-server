@@ -4,7 +4,7 @@ Modbus TCP server script for debugging
 Author: Michael Oberdorf IT-Consulting
 Datum: 2020-03-30
 Last modified by: Michael Oberdorf
-Last modified at: 2025-12-28
+Last modified at: 2026-02-07
 *************************************************************************** """
 import argparse
 import json
@@ -14,18 +14,20 @@ import socket
 import sys
 from typing import Literal, Optional
 
+import pymodbus
 from pymodbus.datastore import (
+    ModbusDeviceContext,
     ModbusSequentialDataBlock,
     ModbusServerContext,
-    ModbusSlaveContext,
     ModbusSparseDataBlock,
 )
-from pymodbus.device import ModbusDeviceIdentification
-from pymodbus.server.sync import StartTcpServer, StartTlsServer, StartUdpServer
+from pymodbus.pdu.device import ModbusDeviceIdentification
+from pymodbus.server import StartTcpServer, StartTlsServer, StartUdpServer
 
 # default configuration file path
-default_config_file = "/app/modbus_server.json"
-VERSION = "1.4.1"
+__script_path__ = os.path.dirname(__file__)
+default_config_file = os.path.join(__script_path__, "modbus_server.json")
+VERSION = "2.0.0"
 
 log = logging.getLogger()
 
@@ -39,8 +41,11 @@ log = logging.getLogger()
 
 def get_ip_address() -> str:
     """
-    get_ip_address is a small function that determines the IP address of the outbound ethernet interface
-    @return: string, IP address
+    Small function that determines the IP address of the outbound ethernet interface
+
+    :return IP address
+    :rtype: str
+    :raises Exception: if the IP address cannot be determined (will be passed silently and empty string will be returned)
     """
     ipaddr = ""
     try:
@@ -66,16 +71,27 @@ def run_server(
 ):
     """
     Run the modbus server(s)
-    @param listener_address: string, IP address to bind the listener (default: '0.0.0.0')
-    @param listener_port: integer, TCP port to bin the listener (default: 5020)
-    @param protocol: string, defines if the server listenes to TCP or UDP (default: 'TCP')
-    @param tls_cert: boolean, path to certificate to start tcp server with TLS (default: None)
-    @param tls_key: boolean, path to private key to start tcp server with TLS (default: None)
-    @param zero_mode: boolean, request to address(0-7) will map to the address (0-7) instead of (1-8) (default: False)
-    @param discrete_inputs: dict(), initial addresses and their values (default: dict())
-    @param coils: dict(), initial addresses and their values (default: dict())
-    @param holding_registers: dict(), initial addresses and their values (default: dict())
-    @param input_registers: dict(), initial addresses and their values (default: dict())
+
+    :param listener_address: IP address to bind the listener (default: '0.0.0.0')
+    :type listener_address: str
+    :param listener_port: TCP port to bin the listener (default: 5020)
+    :type listener_port: int
+    :param protocol: defines if the server listenes to TCP or UDP (default: 'TCP')
+    :type protocol: str
+    :param tls_cert: path to certificate to start tcp server with TLS (default: None)
+    :type tls_cert: str
+    :param tls_key: path to private key to start tcp server with TLS (default: None)
+    :type tls_key: str
+    :param zero_mode: request to address(0-7) will map to the address (0-7) instead of (1-8) (default: False)
+    :type zero_mode: bool
+    :param discrete_inputs: initial addresses and their values (default: dict())
+    :type discrete_inputs: Optional[dict]
+    :param coils: initial addresses and their values (default: dict())
+    :type coils: Optional[dict]
+    :param holding_registers: initial addresses and their values (default: dict())
+    :type holding_registers: Optional[dict]
+    :param input_registers: initial addresses and their values (default: dict())
+    :type input_registers: Optional[dict]
     """
 
     # initialize data store
@@ -123,10 +139,10 @@ def run_server(
         log.debug("set all registers to 0x00")
         ir = ModbusSequentialDataBlock.create()
 
-    store = ModbusSlaveContext(di=di, co=co, hr=hr, ir=ir, zero_mode=zero_mode)
+    store = ModbusDeviceContext(di=di, co=co, hr=hr, ir=ir)
 
     log.debug("Define Modbus server context")
-    context = ModbusServerContext(slaves=store, single=True)
+    context = ModbusServerContext(devices=store, single=True)
 
     # ----------------------------------------------------------------------- #
     # initialize the server information
@@ -136,11 +152,17 @@ def run_server(
     log.debug("Define Modbus server identity")
     identity = ModbusDeviceIdentification()
     identity.VendorName = "Pymodbus"
+    log.debug(f"Set VendorName to: {identity.VendorName}")
     identity.ProductCode = "PM"
-    identity.VendorUrl = "http://github.com/riptideio/pymodbus/"
+    log.debug(f"Set ProductCode to: {identity.ProductCode}")
+    identity.VendorUrl = "https://github.com/pymodbus-dev/pymodbus/"
+    log.debug(f"Set VendorUrl to: {identity.VendorUrl}")
     identity.ProductName = "Pymodbus Server"
+    log.debug(f"Set ProductName to: {identity.ProductName}")
     identity.ModelName = "Pymodbus Server"
-    identity.MajorMinorRevision = "2.5.3"
+    log.debug(f"Set ModelName to: {identity.ModelName}")
+    identity.MajorMinorRevision = pymodbus.__version__
+    log.debug(f"Set MajorMinorRevision to: {identity.MajorMinorRevision}")
 
     # ----------------------------------------------------------------------- #
     # run the server
@@ -152,7 +174,7 @@ def run_server(
     if start_tls:
         log.info(f"Starting Modbus TCP server with TLS on {listener_address}:{listener_port}")
         StartTlsServer(
-            context,
+            context=context,
             identity=identity,
             certfile=tls_cert,
             keyfile=tls_key,
@@ -161,12 +183,12 @@ def run_server(
     else:
         if protocol == "UDP":
             log.info(f"Starting Modbus UDP server on {listener_address}:{listener_port}")
-            StartUdpServer(context, identity=identity, address=(listener_address, listener_port))
+            StartUdpServer(context=context, identity=identity, address=(listener_address, listener_port))
         else:
             log.info(f"Starting Modbus TCP server on {listener_address}:{listener_port}")
-            StartTcpServer(context, identity=identity, address=(listener_address, listener_port))
+            StartTcpServer(context=context, identity=identity, address=(listener_address, listener_port))
             # TCP with different framer
-            # StartTcpServer(context, identity=identity, framer=ModbusRtuFramer, address=(listener_address, listener_port))
+            # StartTcpServer(context=context, identity=identity, framer=ModbusRtuFramer, address=(listener_address, listener_port))
 
 
 def prepare_register(
@@ -176,15 +198,21 @@ def prepare_register(
 ) -> dict:
     """
     Function to prepare the register to have the correct data types
-    @param register: dict(), the register dictionary, loaded from json file
-    @param init_type: str(), how to initialize the register values 'boolean' or 'word'
-    @param initialize_undefined_registers: boolean, fill undefined registers with 0x00 (default: False)
-    @return: dict(), register with correct data types
+
+    :param register: the register dictionary, loaded from json file
+    :type register: dict
+    :param init_type: how to initialize the register values 'boolean' or 'word'
+    :type init_type: Literal["boolean", "word"]
+    :param initialize_undefined_registers: fill undefined registers with 0x00 (default: False)
+    :type initialize_undefined_registers: bool
+    :return: register with correct data types
+    :rtype: dict
+    :raises ValueError: if the input register is not a dictionary
     """
     out_register = dict()
     if not isinstance(register, dict):
         log.error("Unexpected input in function prepareRegister")
-        return out_register
+        raise ValueError("Unexpected input in function prepareRegister")
     if len(register) == 0:
         return out_register
 
@@ -326,7 +354,6 @@ if __name__ == "__main__":
         protocol=CONFIG["server"]["protocol"],
         tls_cert=CONFIG["server"]["tlsParams"]["privateKey"],
         tls_key=CONFIG["server"]["tlsParams"]["certificate"],
-        zero_mode=CONFIG["registers"]["zeroMode"],
         discrete_inputs=configured_discrete_inputs,
         coils=configured_coils,
         holding_registers=configured_holding_registers,
