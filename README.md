@@ -23,12 +23,10 @@ Container image: [DockerHub](https://hub.docker.com/r/oitc/modbus-server)
 
 # Supported tags and respective `Dockerfile` links
 
-* [`latest`, `1.4.1`](https://github.com/cybcon/modbus-server/blob/v1.4.1/Dockerfile)
+* [`latest`, `2.0.0`](https://github.com/cybcon/modbus-server/blob/v2.0.0/Dockerfile)
+* [`1.4.1`](https://github.com/cybcon/modbus-server/blob/v1.4.1/Dockerfile)
 * [`1.4.0`](https://github.com/cybcon/modbus-server/blob/v1.4.0/Dockerfile)
 * [`1.3.2`](https://github.com/cybcon/modbus-server/blob/v1.3.2/Dockerfile)
-* [`1.3.1`](https://github.com/cybcon/modbus-server/blob/v1.3.1/Dockerfile)
-* [`1.3.0`](https://github.com/cybcon/modbus-server/blob/v1.3.0/Dockerfile)
-* [`1.2.0`](https://github.com/cybcon/modbus-server/blob/v1.2.0/Dockerfile)
 
 # What is Modbus TCP Server?
 
@@ -123,7 +121,6 @@ The `/app/modbus_server.json` file comes with following content:
   },
 "registers": {
   "description": "initial values for the register types",
-  "zeroMode": false,
   "initializeUndefinedRegisters": true,
   "discreteInput": {},
   "coils": {},
@@ -150,7 +147,6 @@ The `/app/modbus_server.json` file comes with following content:
 | `server.logging.logLevel`                | String  | Defines the maximum level of severity to log to std out. Possible values are `DEBUG`, `INFO`, `WARN` and `ERROR`.     |
 | `registers`                              | Object  | Configuration parameters to predefine registers.                                                                      |
 | `registers.description`                  | String  | No configuration option, just a description of the parameters.                                                        |
-| `registers.zeroMode`                     | Boolean | By default the modbus registers starts at 1 (`false`) but some implementation requires to start at 0 (`true`).        |
 | `registers.initializeUndefinedRegisters` | Boolean | If `true` the server will initialize all not defined registers with a default value of `0`.                           |
 | `registers.discreteInput`                | Object  | The pre-defined registers of the register type "Discrete Input".                                                      |
 | `registers.coils`                        | Object  | The pre-defined registers of the register type "Coils".                                                               |
@@ -223,7 +219,7 @@ I would appreciate a small donation to support the further development of my ope
 
 # License
 
-Copyright (c) 2020-2024 Michael Oberdorf IT-Consulting
+Copyright (c) 2020-2026 Michael Oberdorf IT-Consulting
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
