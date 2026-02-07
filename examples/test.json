@@ -10,8 +10,13 @@
     },
   "logging": {
     "format": "%(asctime)-15s %(threadName)-15s  %(levelname)-8s %(module)-15s:%(lineno)-8s %(message)s",
-    "logLevel": "DEBUG"
+    "logLevel": "INFO"
     }
+  },
+  "persistence": {
+    "enabled": true,
+    "file": "/data/modbus_registers.json",
+    "saveInterval": 30
   },
 "registers": {
   "description": "initial values for the register types",
