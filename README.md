@@ -119,6 +119,11 @@ The `/app/modbus_server.json` file comes with following content:
     "logLevel": "INFO"
     }
   },
+  "persistence": {
+    "enabled": false,
+    "file": "/data/modbus_registers.json",
+    "saveInterval": 30
+  },
 "registers": {
   "description": "initial values for the register types",
   "initializeUndefinedRegisters": true,
@@ -145,6 +150,10 @@ The `/app/modbus_server.json` file comes with following content:
 | `server.logging`                         | Object  | Log specific configuration.                                                                                           |
 | `server.logging.format`                  | String  | The format of the log messages as described here: https://docs.python.org/3/library/logging.html#logrecord-attributes |
 | `server.logging.logLevel`                | String  | Defines the maximum level of severity to log to std out. Possible values are `DEBUG`, `INFO`, `WARN` and `ERROR`.     |
+| `server.persistence`                     | Object  | Configuration for the persistence layer to  automatically saved and restored after the server is restarted.  |
+| `server.persistence.enabled`             | Boolean | If `true` the persistence will be enabled. |
+| `server.persistence.file`                | String  | The file to store the persistent data (if enabled). |
+| `server.persistence.saveInterval`        | Integer | The interval in seconds when to save the registers (this will be only done if there are changes). |
 | `registers`                              | Object  | Configuration parameters to predefine registers.                                                                      |
 | `registers.description`                  | String  | No configuration option, just a description of the parameters.                                                        |
 | `registers.initializeUndefinedRegisters` | Boolean | If `true` the server will initialize all not defined registers with a default value of `0`.                           |
@@ -209,6 +218,7 @@ services:
       - 5020:5020
     volumes:
       - ./server.json:/server_config.json:ro
+      - ./data:/data:rw
 ```
 
 # Donate
