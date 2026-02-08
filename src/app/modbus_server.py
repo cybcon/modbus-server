@@ -109,24 +109,29 @@ def run_server(persistence_file: Optional[str] = None, persistence_interval: int
     if tls_cert and tls_key and os.path.isfile(tls_cert) and os.path.isfile(tls_key):
         start_tls = True
 
-    if start_tls:
-        log.info(f"Starting Modbus TCP server with TLS on {listener_address}:{listener_port}")
-        StartTlsServer(
-            context=context,
-            identity=identity,
-            certfile=tls_cert,
-            keyfile=tls_key,
-            address=(listener_address, listener_port),
-        )
-    else:
-        if protocol == "UDP":
-            log.info(f"Starting Modbus UDP server on {listener_address}:{listener_port}")
-            StartUdpServer(context=context, identity=identity, address=(listener_address, listener_port))
+    try:
+        if start_tls:
+            log.info(f"Starting Modbus TCP server with TLS on {listener_address}:{listener_port}")
+            StartTlsServer(
+                context=context,
+                identity=identity,
+                certfile=tls_cert,
+                keyfile=tls_key,
+                address=(listener_address, listener_port),
+            )
         else:
-            log.info(f"Starting Modbus TCP server on {listener_address}:{listener_port}")
-            StartTcpServer(context=context, identity=identity, address=(listener_address, listener_port))
-            # TCP with different framer
-            # StartTcpServer(context=context, identity=identity, framer=ModbusRtuFramer, address=(listener_address, listener_port))
+            if protocol == "UDP":
+                log.info(f"Starting Modbus UDP server on {listener_address}:{listener_port}")
+                StartUdpServer(context=context, identity=identity, address=(listener_address, listener_port))
+            else:
+                log.info(f"Starting Modbus TCP server on {listener_address}:{listener_port}")
+                StartTcpServer(context=context, identity=identity, address=(listener_address, listener_port))
+                # TCP with different framer
+                # StartTcpServer(context=context, identity=identity, framer=ModbusRtuFramer, address=(listener_address, listener_port))
+    finally:
+        # Ensure we stop auto-save and perform final save on shutdown
+        if persistence:
+            persistence.stop_auto_save()
 
 
 def _get_modbus_device_context(persistence_data: Optional[dict] = None) -> ModbusDeviceContext:
