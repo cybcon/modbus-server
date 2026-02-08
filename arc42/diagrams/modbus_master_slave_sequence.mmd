@@ -1,0 +1,20 @@
+```mermaid
+sequenceDiagram
+    participant Master as Modbus Master (Client)
+    participant Network as TCP/UDP
+    participant Slave as Modbus Slave (Server)
+    participant Persist as Persistence Thread
+
+    Master->>+Network: Open connection / send packet
+    Network->>+Slave: TCP/UDP: Modbus Request (MBAP + PDU / UDP frame)
+    note right of Slave: Validate header, parse PDU, access register model
+    Slave-->>-Network: Modbus Response (PDU / exception)
+    Network-->>-Master: Return response
+
+    alt Write operation
+        Slave->>+Persist: Update in-memory registers
+        Persist-->>-Slave: Ack (persist scheduled / background save)
+    end
+
+    note over Master,Slave: Retries/timeouts handled at transport layer (TCP retransmission / UDP retries)
+```
