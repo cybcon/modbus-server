@@ -31,8 +31,8 @@ Container image: [DockerHub](https://hub.docker.com/r/oitc/modbus-server)
 
 # What is Modbus TCP Server?
 
-The Modbus TCP Server is a simple, in python written, Modbus TCP server.
-The Modbus registers can be also predefined with values.
+The Modbus TCP Server is a simple, written in python, Modbus TCP server.
+The Modbus registers can also be predefined with values.
 
 The Modbus server was initially created to act as a Modbus slave mock system
 for enhanced tests with modbus masters and to test collecting values from different registers.
@@ -42,10 +42,10 @@ The Modbus specification can be found here: [PDF](https://modbus.org/docs/Modbus
 # Own Docker builds and version pinning
 
 If you want to build your own container image with the [Dockerfile](./Dockerfile) you should know that the file uses version pinning to have a deterministic environment for the application.
-This is a best bractice and described in [Hadolint DL3018](https://github.com/hadolint/hadolint/wiki/DL3018).
+This is a best practice and described in [Hadolint DL3018](https://github.com/hadolint/hadolint/wiki/DL3018).
 
 The problem is, that Alpine Linux doesn't keep old versions inside the software repository. When software will be updated, the old (pinned) version will be removed and is so no longer available.
-Docker builds will be successfull today and fail tomorrow.
+Docker builds will be successful today and fail tomorrow.
 
 See also here: https://github.com/hadolint/hadolint/issues/464
 
@@ -141,7 +141,7 @@ The `/app/modbus_server.json` file comes with following content:
 | Field                                    | Type    | Description                                                                                                           |
 |------------------------------------------|---------|-----------------------------------------------------------------------------------------------------------------------|
 | `server`                                 | Object  | Modbus slave specific runtime parameters.                                                                             |
-| `server.listenerAddress`                 | String  | The IPv4 Address to bound to when starting the server. `"0.0.0.0"` let the server listens on all interface addresses. |
+| `server.listenerAddress`                 | String  | The IPv4 Address to bind to when starting the server. `"0.0.0.0"` lets the server listen on all interface addresses. |
 | `server.listenerPort`                    | Integer | The port number of the modbus slave to listen to.                                                                     |
 | `server.protocol`                        | String  | Defines if the server should use `TCP` or `UDP` (default: `TCP`)                                                      |
 | `server.tlsParams`                       | Object  | Configuration parameters to use TLS encrypted modbus tcp slave. (untested)                                            |
@@ -213,7 +213,7 @@ The persistence layer enables all register changes (made by Modbus write accesse
 
 ### When starting up
 - The server checks whether a persistence file exists.
-- **If YES**: Loads all registry values from the file (initial configuration is skipped)
+- **If YES**: Loads all register values from the file (initial configuration is skipped)
 - **If NO**: Use the initial configuration from `modbus_server.json`
 
 ### During operation
@@ -223,7 +223,7 @@ The persistence layer enables all register changes (made by Modbus write accesse
 
 ### When shutting down
 - A final save is performed.
-- All current registry values are backed up.
+- All current register values are backed up.
 
 ## Configuration
 
