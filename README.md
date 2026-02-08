@@ -23,7 +23,8 @@ Container image: [DockerHub](https://hub.docker.com/r/oitc/modbus-server)
 
 # Supported tags and respective `Dockerfile` links
 
-* [`latest`, `2.0.0`](https://github.com/cybcon/modbus-server/blob/v2.0.0/Dockerfile)
+* [`latest`, `2.1.0`](https://github.com/cybcon/modbus-server/blob/v2.1.0/Dockerfile)
+* [`2.0.0`](https://github.com/cybcon/modbus-server/blob/v2.0.0/Dockerfile)
 * [`1.4.1`](https://github.com/cybcon/modbus-server/blob/v1.4.1/Dockerfile)
 * [`1.4.0`](https://github.com/cybcon/modbus-server/blob/v1.4.0/Dockerfile)
 * [`1.3.2`](https://github.com/cybcon/modbus-server/blob/v1.3.2/Dockerfile)
@@ -203,6 +204,83 @@ Example configuration of pre-defined registers from type "Holding Registers" or 
 - [examples/test.json](https://github.com/cybcon/modbus-server/blob/main/examples/test.json)
 - [examples/udp.json](https://github.com/cybcon/modbus-server/blob/main/examples/udp.json)
 
+
+# Data persistence
+
+The persistence layer enables all register changes (made by Modbus write accesses) to be automatically saved and restored after the server is restarted.
+
+## Functionality
+
+### When starting up
+- The server checks whether a persistence file exists.
+- **If YES**: Loads all registry values from the file (initial configuration is skipped)
+- **If NO**: Use the initial configuration from `modbus_server.json`
+
+### During operation
+- A background thread periodically saves the register data (default: every 30 seconds).
+- Only changed data is saved (optimized for performance)
+- Uses atomic writes (prevents data loss in case of crashes)
+
+### When shutting down
+- A final save is performed.
+- All current registry values are backed up.
+
+## Configuration
+
+### Enable persistence
+
+Add the following section to your `modbus_server.json`:
+
+```json
+{
+  "server": { ... },
+  "persistence": {
+    "enabled": true,
+    "file": "/app/modbus_registers.json",
+    "saveInterval": 30
+  },
+  "registers": { ... }
+}
+```
+
+## Persistence file format
+
+The persistence file is saved as JSON:
+
+```json
+{
+  "discrete_inputs": {
+    "0": false,
+    "1": true,
+    "100": true
+  },
+  "coils": {
+    "0": true,
+    "1": false,
+    "50": true
+  },
+  "holding_registers": {
+    "0": 1234,
+    "1": 5678,
+    "100": 42
+  },
+  "input_registers": {
+    "0": 100,
+    "1": 200
+  }
+}
+```
+
+**Hint:** Only registers with values ≠ 0 are stored (space-saving).
+
+## Backup
+
+For critical applications, you should create regular backups. When using Docker, you need to mount a local directory as volume to `/data` inside the container first.
+
+```bash
+# Cron-Job for daily backup
+0 2 * * * cp /local/path/to/modbus_registers.json /local/backuppath/to/modbus_registers_$(date +\%Y\%m\%d).json
+```
 
 
 # Docker compose configuration
