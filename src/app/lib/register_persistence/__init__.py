@@ -150,14 +150,22 @@ class RegisterPersistence:
             # Check if it's a sparse or sequential block
             if isinstance(store, ModbusSparseDataBlock):
                 # Sparse blocks have a values dict
-                result = dict(store.values)
+                for key, value in store.values.items():
+                    if value != 0:
+                        if register_type in ["d", "c"]:
+                            result[key] = True
+                        else:
+                            result[key] = value
             elif isinstance(store, ModbusSequentialDataBlock):
                 # Sequential blocks: iterate and save non-zero values
                 # This saves space in the JSON file
                 for addr in range(0, 65536):
                     values = store.getValues(addr, 1)
                     if values and values[0] != 0:
-                        result[addr] = values[0]
+                        if register_type in ["d", "c"]:
+                            result[addr] = True
+                        else:
+                            result[addr] = values[0]
 
             return result
 
