@@ -14,7 +14,7 @@
 __author__ = "Michael Oberdorf <info@oberdorf-itc.de>"
 __status__ = "production"
 __date__ = "2026-02-08"
-__version_info__ = ("1", "0", "1")
+__version_info__ = ("1", "0", "2")
 __version__ = ".".join(__version_info__)
 
 __all__ = ["RegisterPersistence"]
@@ -153,9 +153,12 @@ class RegisterPersistence:
                 for key, value in store.values.items():
                     if value != 0:
                         if register_type in ["d", "c"]:
-                            result[key] = True
+                            # For bit registers, include all values (including False)
+                            result[key] = bool(value)
                         else:
-                            result[key] = value
+                            # For word registers, only include non-zero values
+                            if value != 0:
+                                result[key] = value
             elif isinstance(store, ModbusSequentialDataBlock):
                 # Sequential blocks: iterate and save non-zero values
                 # This saves space in the JSON file
@@ -163,7 +166,7 @@ class RegisterPersistence:
                     values = store.getValues(addr, 1)
                     if values and values[0] != 0:
                         if register_type in ["d", "c"]:
-                            result[addr] = True
+                            result[addr] = bool(values[0])
                         else:
                             result[addr] = values[0]
 

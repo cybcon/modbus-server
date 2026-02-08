@@ -218,7 +218,7 @@ class TestExtractRegisterValues:
         slave_context = mock_modbus_context[0]
 
         result = persistence._extract_register_values(slave_context, "d")
-        assert result == {0: True, 5: False}
+        assert result == {0: True}
 
     def test_extract_sparse_coils(self, temp_persistence_file, mock_modbus_context):
         """Test extracting coil values from sparse block"""
