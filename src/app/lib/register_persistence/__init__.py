@@ -7,14 +7,14 @@
 # Author: Michael Oberdorf
 # Date: 2026-02-07
 # Last modified by: Michael Oberdorf
-# Last modified at: 2026-02-07
+# Last modified at: 2026-02-08
 ###############################################################################\n
 """
 
 __author__ = "Michael Oberdorf <info@oberdorf-itc.de>"
 __status__ = "production"
-__date__ = "2026-02-07"
-__version_info__ = ("1", "0", "0")
+__date__ = "2026-02-08"
+__version_info__ = ("1", "0", "1")
 __version__ = ".".join(__version_info__)
 
 __all__ = ["RegisterPersistence"]
