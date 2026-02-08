@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from src.app.modbus_server import prepare_register
+from src.app.modbus_server import _prepare_register
 
 
 def test_prepare_register():
@@ -13,12 +13,12 @@ def test_prepare_register():
         "8": "0x0074",
         "9": "0x0032",
     }
-    register = prepare_register(register=register_example_data, init_type="word", initialize_undefined_registers=False)
+    register = _prepare_register(register=register_example_data, init_type="word", initialize_undefined_registers=False)
     assert len(register) == 8
     assert register[9] == 0x0032
 
     # full register should contain all entries as normal registered, but all other memory addresses set to 0
-    full_register = prepare_register(
+    full_register = _prepare_register(
         register=register_example_data, init_type="word", initialize_undefined_registers=True
     )
     for key in register:

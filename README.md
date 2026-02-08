@@ -23,15 +23,16 @@ Container image: [DockerHub](https://hub.docker.com/r/oitc/modbus-server)
 
 # Supported tags and respective `Dockerfile` links
 
-* [`latest`, `2.0.0`](https://github.com/cybcon/modbus-server/blob/v2.0.0/Dockerfile)
+* [`latest`, `2.1.0`](https://github.com/cybcon/modbus-server/blob/v2.1.0/Dockerfile)
+* [`2.0.0`](https://github.com/cybcon/modbus-server/blob/v2.0.0/Dockerfile)
 * [`1.4.1`](https://github.com/cybcon/modbus-server/blob/v1.4.1/Dockerfile)
 * [`1.4.0`](https://github.com/cybcon/modbus-server/blob/v1.4.0/Dockerfile)
 * [`1.3.2`](https://github.com/cybcon/modbus-server/blob/v1.3.2/Dockerfile)
 
 # What is Modbus TCP Server?
 
-The Modbus TCP Server is a simple, in python written, Modbus TCP server.
-The Modbus registers can be also predefined with values.
+The Modbus TCP Server is a simple, written in python, Modbus TCP server.
+The Modbus registers can also be predefined with values.
 
 The Modbus server was initially created to act as a Modbus slave mock system
 for enhanced tests with modbus masters and to test collecting values from different registers.
@@ -41,10 +42,10 @@ The Modbus specification can be found here: [PDF](https://modbus.org/docs/Modbus
 # Own Docker builds and version pinning
 
 If you want to build your own container image with the [Dockerfile](./Dockerfile) you should know that the file uses version pinning to have a deterministic environment for the application.
-This is a best bractice and described in [Hadolint DL3018](https://github.com/hadolint/hadolint/wiki/DL3018).
+This is a best practice and described in [Hadolint DL3018](https://github.com/hadolint/hadolint/wiki/DL3018).
 
 The problem is, that Alpine Linux doesn't keep old versions inside the software repository. When software will be updated, the old (pinned) version will be removed and is so no longer available.
-Docker builds will be successfull today and fail tomorrow.
+Docker builds will be successful today and fail tomorrow.
 
 See also here: https://github.com/hadolint/hadolint/issues/464
 
@@ -119,6 +120,11 @@ The `/app/modbus_server.json` file comes with following content:
     "logLevel": "INFO"
     }
   },
+  "persistence": {
+    "enabled": false,
+    "file": "/data/modbus_registers.json",
+    "saveInterval": 30
+  },
 "registers": {
   "description": "initial values for the register types",
   "initializeUndefinedRegisters": true,
@@ -135,7 +141,7 @@ The `/app/modbus_server.json` file comes with following content:
 | Field                                    | Type    | Description                                                                                                           |
 |------------------------------------------|---------|-----------------------------------------------------------------------------------------------------------------------|
 | `server`                                 | Object  | Modbus slave specific runtime parameters.                                                                             |
-| `server.listenerAddress`                 | String  | The IPv4 Address to bound to when starting the server. `"0.0.0.0"` let the server listens on all interface addresses. |
+| `server.listenerAddress`                 | String  | The IPv4 Address to bind to when starting the server. `"0.0.0.0"` lets the server listen on all interface addresses. |
 | `server.listenerPort`                    | Integer | The port number of the modbus slave to listen to.                                                                     |
 | `server.protocol`                        | String  | Defines if the server should use `TCP` or `UDP` (default: `TCP`)                                                      |
 | `server.tlsParams`                       | Object  | Configuration parameters to use TLS encrypted modbus tcp slave. (untested)                                            |
@@ -145,6 +151,10 @@ The `/app/modbus_server.json` file comes with following content:
 | `server.logging`                         | Object  | Log specific configuration.                                                                                           |
 | `server.logging.format`                  | String  | The format of the log messages as described here: https://docs.python.org/3/library/logging.html#logrecord-attributes |
 | `server.logging.logLevel`                | String  | Defines the maximum level of severity to log to std out. Possible values are `DEBUG`, `INFO`, `WARN` and `ERROR`.     |
+| `server.persistence`                     | Object  | Configuration for the persistence layer to  automatically saved and restored after the server is restarted.  |
+| `server.persistence.enabled`             | Boolean | If `true` the persistence will be enabled. |
+| `server.persistence.file`                | String  | The file to store the persistent data (if enabled). |
+| `server.persistence.saveInterval`        | Integer | The interval in seconds when to save the registers (this will be only done if there are changes). |
 | `registers`                              | Object  | Configuration parameters to predefine registers.                                                                      |
 | `registers.description`                  | String  | No configuration option, just a description of the parameters.                                                        |
 | `registers.initializeUndefinedRegisters` | Boolean | If `true` the server will initialize all not defined registers with a default value of `0`.                           |
@@ -195,6 +205,83 @@ Example configuration of pre-defined registers from type "Holding Registers" or 
 - [examples/udp.json](https://github.com/cybcon/modbus-server/blob/main/examples/udp.json)
 
 
+# Data persistence
+
+The persistence layer enables all register changes (made by Modbus write accesses) to be automatically saved and restored after the server is restarted.
+
+## Functionality
+
+### When starting up
+- The server checks whether a persistence file exists.
+- **If YES**: Loads all register values from the file (initial configuration is skipped)
+- **If NO**: Use the initial configuration from `modbus_server.json`
+
+### During operation
+- A background thread periodically saves the register data (default: every 30 seconds).
+- Only changed data is saved (optimized for performance)
+- Uses atomic writes (prevents data loss in case of crashes)
+
+### When shutting down
+- A final save is performed.
+- All current register values are backed up.
+
+## Configuration
+
+### Enable persistence
+
+Add the following section to your `modbus_server.json`:
+
+```json
+{
+  "server": { ... },
+  "persistence": {
+    "enabled": true,
+    "file": "/app/modbus_registers.json",
+    "saveInterval": 30
+  },
+  "registers": { ... }
+}
+```
+
+## Persistence file format
+
+The persistence file is saved as JSON:
+
+```json
+{
+  "discrete_inputs": {
+    "0": false,
+    "1": true,
+    "100": true
+  },
+  "coils": {
+    "0": true,
+    "1": false,
+    "50": true
+  },
+  "holding_registers": {
+    "0": 1234,
+    "1": 5678,
+    "100": 42
+  },
+  "input_registers": {
+    "0": 100,
+    "1": 200
+  }
+}
+```
+
+**Hint:** Only registers with values ≠ 0 are stored (space-saving).
+
+## Backup
+
+For critical applications, you should create regular backups. When using Docker, you need to mount a local directory as volume to `/data` inside the container first.
+
+```bash
+# Cron-Job for daily backup
+0 2 * * * cp /local/path/to/modbus_registers.json /local/backuppath/to/modbus_registers_$(date +\%Y\%m\%d).json
+```
+
 
 # Docker compose configuration
 
@@ -209,6 +296,7 @@ services:
       - 5020:5020
     volumes:
       - ./server.json:/server_config.json:ro
+      - ./data:/data:rw
 ```
 
 # Donate

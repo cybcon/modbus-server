@@ -15,6 +15,7 @@ import sys
 from typing import Literal, Optional
 
 import pymodbus
+from lib.register_persistence import RegisterPersistence
 from pymodbus.datastore import (
     ModbusDeviceContext,
     ModbusSequentialDataBlock,
@@ -26,8 +27,10 @@ from pymodbus.server import StartTcpServer, StartTlsServer, StartUdpServer
 
 # default configuration file path
 __script_path__ = os.path.dirname(__file__)
+__persistence_path__ = os.path.join(os.path.dirname(__script_path__), "data")
 default_config_file = os.path.join(__script_path__, "modbus_server.json")
-VERSION = "2.0.0"
+default_persistence_file = os.path.join(__persistence_path__, "modbus_registers.json")
+VERSION = "2.1.0"
 
 log = logging.getLogger()
 
@@ -57,42 +60,134 @@ def get_ip_address() -> str:
     return ipaddr
 
 
-def run_server(
-    listener_address: str = "0.0.0.0",
-    listener_port: int = 5020,
-    protocol: str = "TCP",
-    tls_cert: str = None,
-    tls_key: str = None,
-    zero_mode: bool = False,
-    discrete_inputs: Optional[dict] = None,
-    coils: Optional[dict] = None,
-    holding_registers: Optional[dict] = None,
-    input_registers: Optional[dict] = None,
-):
+def run_server(persistence_file: Optional[str] = None, persistence_interval: int = 30):
     """
     Run the modbus server(s)
 
-    :param listener_address: IP address to bind the listener (default: '0.0.0.0')
-    :type listener_address: str
-    :param listener_port: TCP port to bin the listener (default: 5020)
-    :type listener_port: int
-    :param protocol: defines if the server listenes to TCP or UDP (default: 'TCP')
-    :type protocol: str
-    :param tls_cert: path to certificate to start tcp server with TLS (default: None)
-    :type tls_cert: str
-    :param tls_key: path to private key to start tcp server with TLS (default: None)
-    :type tls_key: str
-    :param zero_mode: request to address(0-7) will map to the address (0-7) instead of (1-8) (default: False)
-    :type zero_mode: bool
-    :param discrete_inputs: initial addresses and their values (default: dict())
-    :type discrete_inputs: Optional[dict]
-    :param coils: initial addresses and their values (default: dict())
-    :type coils: Optional[dict]
-    :param holding_registers: initial addresses and their values (default: dict())
-    :type holding_registers: Optional[dict]
-    :param input_registers: initial addresses and their values (default: dict())
-    :type input_registers: Optional[dict]
+    :param persistence_file: path to file for register persistence (default: None)
+    :type persistence_file: Optional[str]
+    :param persistence_interval: interval in seconds to save the registers to the persistence file (default: 30)
+    :type persistence_interval: int
     """
+    # Check if we should load from persistence
+    persistence = None
+    loaded_data = None
+
+    if persistence_file:
+        log.info("Persistence enabled")
+        temp_context = ModbusServerContext(devices=ModbusDeviceContext(), single=True)
+        persistence = RegisterPersistence(
+            persistence_file=persistence_file, context=temp_context, save_interval=persistence_interval
+        )
+        loaded_data = persistence.load_registers()
+
+    deviceContext = _get_modbus_device_context(persistence_data=loaded_data)
+
+    log.debug("Define Modbus server context")
+    context = ModbusServerContext(devices=deviceContext, single=True)
+
+    # Set up persistence with the actual context
+    if persistence_file:
+        persistence = RegisterPersistence(
+            persistence_file=persistence_file, context=context, save_interval=persistence_interval
+        )
+        persistence.start_auto_save()
+
+    log.debug("Define Modbus server identity")
+    identity = _define_server_identity()
+
+    # ----------------------------------------------------------------------- #
+    # run the server
+    # ----------------------------------------------------------------------- #
+    listener_address = CONFIG["server"].get("listenerAddress", "0.0.0.0")
+    listener_port = int(CONFIG["server"].get("listenerPort", 5020))
+    protocol = (CONFIG["server"].get("protocol", "TCP"),)
+
+    tls_cert = CONFIG["server"]["tlsParams"].get("certificate", None)
+    tls_key = CONFIG["server"]["tlsParams"].get("privateKey", None)
+    start_tls = False
+    if tls_cert and tls_key and os.path.isfile(tls_cert) and os.path.isfile(tls_key):
+        start_tls = True
+
+    try:
+        if start_tls:
+            log.info(f"Starting Modbus TCP server with TLS on {listener_address}:{listener_port}")
+            StartTlsServer(
+                context=context,
+                identity=identity,
+                certfile=tls_cert,
+                keyfile=tls_key,
+                address=(listener_address, listener_port),
+            )
+        else:
+            if protocol == "UDP":
+                log.info(f"Starting Modbus UDP server on {listener_address}:{listener_port}")
+                StartUdpServer(context=context, identity=identity, address=(listener_address, listener_port))
+            else:
+                log.info(f"Starting Modbus TCP server on {listener_address}:{listener_port}")
+                StartTcpServer(context=context, identity=identity, address=(listener_address, listener_port))
+                # TCP with different framer
+                # StartTcpServer(context=context, identity=identity, framer=ModbusRtuFramer, address=(listener_address, listener_port))
+    finally:
+        # Ensure we stop auto-save and perform final save on shutdown
+        if persistence:
+            persistence.stop_auto_save()
+
+
+def _get_modbus_device_context(persistence_data: Optional[dict] = None) -> ModbusDeviceContext:
+    """
+    Generates the Modbus Device Context with the defined registers based on the configuration file and the persistence file (if enabled)
+
+    :param persistence_data: the data loaded from the persistence file (default: None)
+    :type persistence_data: Optional[dict]
+    :return: the generated ModbusDeviceContext with the defined registers
+    :rtype: ModbusDeviceContext
+    """
+    # Check if we should load from persistence or from configuration file
+    if persistence_data:
+        discrete_inputs = _prepare_register(
+            register=persistence_data.get("discrete_inputs", {}),
+            init_type="boolean",
+            initialize_undefined_registers=CONFIG["registers"]["initializeUndefinedRegisters"],
+        )
+        coils = _prepare_register(
+            register=persistence_data.get("coils", {}),
+            init_type="boolean",
+            initialize_undefined_registers=CONFIG["registers"]["initializeUndefinedRegisters"],
+        )
+        holding_registers = _prepare_register(
+            register=persistence_data.get("holding_registers", {}),
+            init_type="word",
+            initialize_undefined_registers=CONFIG["registers"]["initializeUndefinedRegisters"],
+        )
+        input_registers = _prepare_register(
+            register=persistence_data.get("input_registers", {}),
+            init_type="word",
+            initialize_undefined_registers=CONFIG["registers"]["initializeUndefinedRegisters"],
+        )
+        log.info("Loaded registers from persistence file")
+    else:
+        discrete_inputs = _prepare_register(
+            register=CONFIG["registers"].get("discreteInput", {}),
+            init_type="boolean",
+            initialize_undefined_registers=CONFIG["registers"]["initializeUndefinedRegisters"],
+        )
+        coils = _prepare_register(
+            register=CONFIG["registers"].get("coils", {}),
+            init_type="boolean",
+            initialize_undefined_registers=CONFIG["registers"]["initializeUndefinedRegisters"],
+        )
+        holding_registers = _prepare_register(
+            register=CONFIG["registers"].get("holdingRegister", {}),
+            init_type="word",
+            initialize_undefined_registers=CONFIG["registers"]["initializeUndefinedRegisters"],
+        )
+        input_registers = _prepare_register(
+            register=CONFIG["registers"].get("inputRegister", {}),
+            init_type="word",
+            initialize_undefined_registers=CONFIG["registers"]["initializeUndefinedRegisters"],
+        )
+        log.info("Loaded registers from configuration file")
 
     # initialize data store
     log.debug("Initialize discrete input")
@@ -139,17 +234,16 @@ def run_server(
         log.debug("set all registers to 0x00")
         ir = ModbusSequentialDataBlock.create()
 
-    store = ModbusDeviceContext(di=di, co=co, hr=hr, ir=ir)
+    return ModbusDeviceContext(di=di, co=co, hr=hr, ir=ir)
 
-    log.debug("Define Modbus server context")
-    context = ModbusServerContext(devices=store, single=True)
 
-    # ----------------------------------------------------------------------- #
-    # initialize the server information
-    # ----------------------------------------------------------------------- #
-    # If you don't set this or any fields, they are defaulted to empty strings.
-    # ----------------------------------------------------------------------- #
-    log.debug("Define Modbus server identity")
+def _define_server_identity() -> ModbusDeviceIdentification:
+    """
+    Defines the server identity based on the configuration file
+
+    :return: the defined ModbusDeviceIdentification
+    :rtype: ModbusDeviceIdentification
+    """
     identity = ModbusDeviceIdentification()
     identity.VendorName = "Pymodbus"
     log.debug(f"Set VendorName to: {identity.VendorName}")
@@ -164,34 +258,10 @@ def run_server(
     identity.MajorMinorRevision = pymodbus.__version__
     log.debug(f"Set MajorMinorRevision to: {identity.MajorMinorRevision}")
 
-    # ----------------------------------------------------------------------- #
-    # run the server
-    # ----------------------------------------------------------------------- #
-    start_tls = False
-    if tls_cert and tls_key and os.path.isfile(tls_cert) and os.path.isfile(tls_key):
-        start_tls = True
-
-    if start_tls:
-        log.info(f"Starting Modbus TCP server with TLS on {listener_address}:{listener_port}")
-        StartTlsServer(
-            context=context,
-            identity=identity,
-            certfile=tls_cert,
-            keyfile=tls_key,
-            address=(listener_address, listener_port),
-        )
-    else:
-        if protocol == "UDP":
-            log.info(f"Starting Modbus UDP server on {listener_address}:{listener_port}")
-            StartUdpServer(context=context, identity=identity, address=(listener_address, listener_port))
-        else:
-            log.info(f"Starting Modbus TCP server on {listener_address}:{listener_port}")
-            StartTcpServer(context=context, identity=identity, address=(listener_address, listener_port))
-            # TCP with different framer
-            # StartTcpServer(context=context, identity=identity, framer=ModbusRtuFramer, address=(listener_address, listener_port))
+    return identity
 
 
-def prepare_register(
+def _prepare_register(
     register: dict,
     init_type: Literal["boolean", "word"],
     initialize_undefined_registers: bool = False,
@@ -318,27 +388,18 @@ if __name__ == "__main__":
     log.info(f"Starting Modbus Server, v{VERSION}")
     log.debug(f"Loaded successfully the configuration file: {config_file}")
 
-    # be sure the data types within the dictionaries are correct (json will only allow strings as keys)
-    configured_discrete_inputs = prepare_register(
-        register=CONFIG["registers"]["discreteInput"],
-        init_type="boolean",
-        initialize_undefined_registers=CONFIG["registers"]["initializeUndefinedRegisters"],
-    )
-    configured_coils = prepare_register(
-        register=CONFIG["registers"]["coils"],
-        init_type="boolean",
-        initialize_undefined_registers=CONFIG["registers"]["initializeUndefinedRegisters"],
-    )
-    configured_holding_registers = prepare_register(
-        register=CONFIG["registers"]["holdingRegister"],
-        init_type="word",
-        initialize_undefined_registers=CONFIG["registers"]["initializeUndefinedRegisters"],
-    )
-    configured_input_registers = prepare_register(
-        register=CONFIG["registers"]["inputRegister"],
-        init_type="word",
-        initialize_undefined_registers=CONFIG["registers"]["initializeUndefinedRegisters"],
-    )
+    # Check for persistence configuration
+    persistence_file = None
+    persistence_interval = 30  # default: save every 30 seconds
+    if "persistence" in CONFIG:
+        if CONFIG["persistence"].get("enabled", False):
+            persistence_file = CONFIG["persistence"].get("file", default_persistence_file)
+            persistence_interval = CONFIG["persistence"].get("saveInterval", 30)
+            log.info(f"Persistence enabled: {persistence_file} (save interval: {persistence_interval}s)")
+        else:
+            log.info("Persistence disabled in configuration")
+    else:
+        log.info("No persistence configuration found, persistence disabled")
 
     # add TCP protocol to configuration if not defined
     if "protocol" not in CONFIG["server"]:
@@ -349,13 +410,6 @@ if __name__ == "__main__":
     if local_ip_addr != "":
         log.info(f"Outbound device IP address is: {local_ip_addr}")
     run_server(
-        listener_address=CONFIG["server"]["listenerAddress"],
-        listener_port=CONFIG["server"]["listenerPort"],
-        protocol=CONFIG["server"]["protocol"],
-        tls_cert=CONFIG["server"]["tlsParams"]["privateKey"],
-        tls_key=CONFIG["server"]["tlsParams"]["certificate"],
-        discrete_inputs=configured_discrete_inputs,
-        coils=configured_coils,
-        holding_registers=configured_holding_registers,
-        input_registers=configured_input_registers,
+        persistence_file=persistence_file,
+        persistence_interval=persistence_interval,
     )

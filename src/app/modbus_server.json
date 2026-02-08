@@ -13,6 +13,11 @@
     "logLevel": "INFO"
     }
   },
+  "persistence": {
+    "enabled": false,
+    "file": "/data/modbus_registers.json",
+    "saveInterval": 30
+  },
 "registers": {
   "description": "initial values for the register types",
   "initializeUndefinedRegisters": true,
