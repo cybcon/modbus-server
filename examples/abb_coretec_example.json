@@ -13,6 +13,12 @@
     "logLevel": "DEBUG"
     }
   },
+"metrics": {
+  "enabled": false,
+  "address": "0.0.0.0",
+  "port": 9090,
+  "path": "/metrics"
+},
 "registers": {
   "description": "initial values for the register types",
   "initializeUndefinedRegisters": true,

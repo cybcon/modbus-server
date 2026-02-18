@@ -12,10 +12,13 @@ import logging
 import os
 import socket
 import sys
-from typing import Literal, Optional
+from typing import Literal, Optional, Tuple
 
 import pymodbus
 from lib.register_persistence import RegisterPersistence
+from lib.telemetry.metrics_datastore import MetricsTrackingDataBlock
+from lib.telemetry.metrics_server import MetricsServer
+from lib.telemetry.prometheus_metrics import PrometheusMetrics
 from pymodbus.datastore import (
     ModbusDeviceContext,
     ModbusSequentialDataBlock,
@@ -30,7 +33,7 @@ __script_path__ = os.path.dirname(__file__)
 __persistence_path__ = os.path.join(os.path.dirname(__script_path__), "data")
 default_config_file = os.path.join(__script_path__, "modbus_server.json")
 default_persistence_file = os.path.join(__persistence_path__, "modbus_registers.json")
-VERSION = "2.1.0"
+VERSION = "2.2.0"
 
 log = logging.getLogger()
 
@@ -60,7 +63,12 @@ def get_ip_address() -> str:
     return ipaddr
 
 
-def run_server(persistence_file: Optional[str] = None, persistence_interval: int = 30):
+def run_server(
+    persistence_file: Optional[str] = None,
+    persistence_interval: int = 30,
+    metrics_server: Optional[MetricsServer] = None,
+    metrics_collector: Optional[PrometheusMetrics] = None,
+) -> None:
     """
     Run the modbus server(s)
 
@@ -68,6 +76,10 @@ def run_server(persistence_file: Optional[str] = None, persistence_interval: int
     :type persistence_file: Optional[str]
     :param persistence_interval: interval in seconds to save the registers to the persistence file (default: 30)
     :type persistence_interval: int
+    :param metrics_server: the metrics server instance for telemetry output (default: None)
+    :type metrics_server: Optional[MetricsServer]
+    :param metrics_collector: the metrics collector instance for telemetry output (default: None)
+    :type metrics_collector: Optional[PrometheusMetrics]
     """
     # Check if we should load from persistence
     persistence = None
@@ -81,7 +93,7 @@ def run_server(persistence_file: Optional[str] = None, persistence_interval: int
         )
         loaded_data = persistence.load_registers()
 
-    deviceContext = _get_modbus_device_context(persistence_data=loaded_data)
+    deviceContext = _get_modbus_device_context(persistence_data=loaded_data, metrics_collector=metrics_collector)
 
     log.debug("Define Modbus server context")
     context = ModbusServerContext(devices=deviceContext, single=True)
@@ -132,14 +144,20 @@ def run_server(persistence_file: Optional[str] = None, persistence_interval: int
         # Ensure we stop auto-save and perform final save on shutdown
         if persistence:
             persistence.stop_auto_save()
+        if metrics_server:
+            metrics_server.stop()
 
 
-def _get_modbus_device_context(persistence_data: Optional[dict] = None) -> ModbusDeviceContext:
+def _get_modbus_device_context(
+    persistence_data: Optional[dict] = None, metrics_collector: Optional[PrometheusMetrics] = None
+) -> ModbusDeviceContext:
     """
     Generates the Modbus Device Context with the defined registers based on the configuration file and the persistence file (if enabled)
 
     :param persistence_data: the data loaded from the persistence file (default: None)
     :type persistence_data: Optional[dict]
+    :param metrics_collector: the metrics collector instance for telemetry output (default: None)
+    :type metrics_collector: Optional[PrometheusMetrics]
     :return: the generated ModbusDeviceContext with the defined registers
     :rtype: ModbusDeviceContext
     """
@@ -200,6 +218,8 @@ def _get_modbus_device_context(persistence_data: Optional[dict] = None) -> Modbu
         # di = ModbusSequentialDataBlock(0x00, [0xaa]*65536)
         log.debug("set all registers to 0x00")
         di = ModbusSequentialDataBlock.create()
+    if metrics_collector:
+        di = MetricsTrackingDataBlock(wrapped_block=di, metrics_collector=metrics_collector, register_type="d")
 
     log.debug("Initialize coils")
     if isinstance(coils, dict) and coils:
@@ -211,6 +231,8 @@ def _get_modbus_device_context(persistence_data: Optional[dict] = None) -> Modbu
         # co = ModbusSequentialDataBlock(0x00, [0xbb]*65536)
         log.debug("set all registers to 0x00")
         co = ModbusSequentialDataBlock.create()
+    if metrics_collector:
+        co = MetricsTrackingDataBlock(wrapped_block=co, metrics_collector=metrics_collector, register_type="c")
 
     log.debug("Initialize holding registers")
     if isinstance(holding_registers, dict) and holding_registers:
@@ -222,6 +244,8 @@ def _get_modbus_device_context(persistence_data: Optional[dict] = None) -> Modbu
         # hr = ModbusSequentialDataBlock(0x00, [0xcc]*65536)
         log.debug("set all registers to 0x00")
         hr = ModbusSequentialDataBlock.create()
+    if metrics_collector:
+        hr = MetricsTrackingDataBlock(wrapped_block=hr, metrics_collector=metrics_collector, register_type="h")
 
     log.debug("Initialize input registers")
     if isinstance(input_registers, dict) and input_registers:
@@ -233,6 +257,8 @@ def _get_modbus_device_context(persistence_data: Optional[dict] = None) -> Modbu
         # ir = ModbusSequentialDataBlock(0x00, [0xdd]*65536)
         log.debug("set all registers to 0x00")
         ir = ModbusSequentialDataBlock.create()
+    if metrics_collector:
+        ir = MetricsTrackingDataBlock(wrapped_block=ir, metrics_collector=metrics_collector, register_type="i")
 
     return ModbusDeviceContext(di=di, co=co, hr=hr, ir=ir)
 
@@ -341,6 +367,40 @@ def _prepare_register(
     return out_register
 
 
+def initialize_metrics_server(
+    enabled: bool = False, address: str = "0.0.0.0", port: int = 9090, path: str = "/metrics"
+) -> Tuple[Optional[PrometheusMetrics], Optional[MetricsServer]]:
+    """
+    Initializes the metrics server for telemetry output
+
+    :param enabled: whether to enable the metrics server (default: False)
+    :type enabled: bool
+    :param address: the address to listen on for the metrics server (default: "0.0.0.0")
+    :type address: str
+    :param port: the port to listen on for the metrics server (default: 9090)
+    :type port: int
+    :param path: the path to listen on for the metrics server (default: "/metrics")
+    :type path: str
+    :return: the metrics collector and the metrics server instance (if enabled, otherwise None)
+    :rtype: Tuple[Optional[PrometheusMetrics], Optional[MetricsServer]]
+    """
+    if enabled:
+        metrics_collector = PrometheusMetrics()
+        metrics_server = MetricsServer(metrics_collector=metrics_collector, address=address, port=port, path=path)
+        try:
+            metrics_server.start()
+            log.info(f"Metrics endpoint available at " f"http://{address}:{port}{path} for telemetry output")
+        except Exception as e:
+            log.error(f"Failed to start metrics server: {e}")
+            return metrics_collector, None
+        # On success return the created collector and server
+        return metrics_collector, metrics_server
+
+    else:
+        log.info("Metrics server for telemetry output is disabled in configuration")
+        return None, None
+
+
 """
 ###############################################################################
 # M A I N
@@ -409,7 +469,20 @@ if __name__ == "__main__":
     local_ip_addr = get_ip_address()
     if local_ip_addr != "":
         log.info(f"Outbound device IP address is: {local_ip_addr}")
+
+    # start metrics server for telemetry output if enabled in configuration
+    metrics_config = CONFIG.get("metrics", {})
+    (metrics_collector, metrics_server) = initialize_metrics_server(
+        enabled=metrics_config.get("enabled", False),
+        address=metrics_config.get("address", "0.0.0.0"),
+        port=metrics_config.get("port", 9090),
+        path=metrics_config.get("path", "/metrics"),
+    )
+
+    # start the modbus server
     run_server(
         persistence_file=persistence_file,
         persistence_interval=persistence_interval,
+        metrics_server=metrics_server,
+        metrics_collector=metrics_collector,
     )
