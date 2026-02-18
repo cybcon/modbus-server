@@ -15,7 +15,7 @@
 __author__ = "Michael Oberdorf <info@oberdorf-itc.de>"
 __status__ = "production"
 __date__ = "2026-02-18"
-__version_info__ = ("1", "0", "0")
+__version_info__ = ("1", "0", "1")
 __version__ = ".".join(__version_info__)
 
 __all__ = ["MetricsTrackingDataBlock"]
@@ -87,6 +87,15 @@ class MetricsTrackingDataBlock(BaseModbusDataBlock):
         """
         # Track the read operation for each address
         if self.metrics_collector:
+            # infer request function code from register type and record a single request
+            if self.register_type == "c":
+                self.metrics_collector.record_request(1)  # read coils
+            elif self.register_type == "d":
+                self.metrics_collector.record_request(2)  # read discrete inputs
+            elif self.register_type == "h":
+                self.metrics_collector.record_request(3)  # read holding registers
+            elif self.register_type == "i":
+                self.metrics_collector.record_request(4)  # read input registers
             for addr in range(address, address + count):
                 self.metrics_collector.record_register_read(self.register_type, addr, count=1)
 
@@ -103,9 +112,16 @@ class MetricsTrackingDataBlock(BaseModbusDataBlock):
         :return: None
         :raises Exception: If the underlying data block raises an exception during the setValues call
         """
-        # Track the write operation for each address
+        # Track the write operation for each address and infer request type
         if self.metrics_collector:
             count = len(values) if isinstance(values, list) else 1
+            # infer and record a single request for the write
+            if self.register_type == "c":
+                # coils: single (5) vs multiple (15)
+                self.metrics_collector.record_request(5 if count == 1 else 15)
+            elif self.register_type == "h":
+                # holding registers: single (6) vs multiple (16)
+                self.metrics_collector.record_request(6 if count == 1 else 16)
             for i, addr in enumerate(range(address, address + count)):
                 self.metrics_collector.record_register_write(self.register_type, addr, count=1)
 
