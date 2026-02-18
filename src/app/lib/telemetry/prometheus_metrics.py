@@ -2,8 +2,8 @@
 """
 ###############################################################################
 # Prometheus metrics collector for Modbus Server.
-#This module provides a Prometheus-compatible metrics endpoint that exposes
-#real-time counters and gauges for Modbus activity.
+# This module provides a Prometheus-compatible metrics endpoint that exposes
+# real-time counters and gauges for Modbus activity.
 #------------------------------------------------------------------------------
 # Author: Michael Oberdorf
 # Date: 2026-02-18

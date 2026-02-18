@@ -25,7 +25,7 @@ import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Optional
 
-from .prometheus_metrics import PrometheusMetrics
+from prometheus_metrics import PrometheusMetrics
 
 log = logging.getLogger(__name__)
 

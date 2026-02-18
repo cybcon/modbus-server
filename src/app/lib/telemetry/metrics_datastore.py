@@ -22,9 +22,8 @@ __all__ = ["MetricsTrackingDataBlock"]
 
 import logging
 
+from prometheus_metrics import PrometheusMetrics
 from pymodbus.datastore.store import BaseModbusDataBlock
-
-from .prometheus_metrics import PrometheusMetrics
 
 log = logging.getLogger(__name__)
 

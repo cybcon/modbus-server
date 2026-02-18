@@ -23,7 +23,8 @@ Container image: [DockerHub](https://hub.docker.com/r/oitc/modbus-server)
 
 # Supported tags and respective `Dockerfile` links
 
-* [`latest`, `2.1.0`](https://github.com/cybcon/modbus-server/blob/v2.1.0/Dockerfile)
+* [`latest`, `2.2.0`](https://github.com/cybcon/modbus-server/blob/v2.2.0/Dockerfile)
+* [`2.1.0`](https://github.com/cybcon/modbus-server/blob/v2.1.0/Dockerfile)
 * [`2.0.0`](https://github.com/cybcon/modbus-server/blob/v2.0.0/Dockerfile)
 * [`1.4.1`](https://github.com/cybcon/modbus-server/blob/v1.4.1/Dockerfile)
 * [`1.4.0`](https://github.com/cybcon/modbus-server/blob/v1.4.0/Dockerfile)
@@ -125,6 +126,12 @@ The `/app/modbus_server.json` file comes with following content:
     "file": "/data/modbus_registers.json",
     "saveInterval": 30
   },
+"metrics": {
+  "enabled": false,
+  "address": "0.0.0.0",
+  "port": 9090,
+  "path": "/metrics"
+},
 "registers": {
   "description": "initial values for the register types",
   "initializeUndefinedRegisters": true,
@@ -141,7 +148,7 @@ The `/app/modbus_server.json` file comes with following content:
 | Field                                    | Type    | Description                                                                                                           |
 |------------------------------------------|---------|-----------------------------------------------------------------------------------------------------------------------|
 | `server`                                 | Object  | Modbus slave specific runtime parameters.                                                                             |
-| `server.listenerAddress`                 | String  | The IPv4 Address to bind to when starting the server. `"0.0.0.0"` lets the server listen on all interface addresses. |
+| `server.listenerAddress`                 | String  | The IPv4 address to bind to, when starting the server. `"0.0.0.0"` lets the server listen on all interface addresses. |
 | `server.listenerPort`                    | Integer | The port number of the modbus slave to listen to.                                                                     |
 | `server.protocol`                        | String  | Defines if the server should use `TCP` or `UDP` (default: `TCP`)                                                      |
 | `server.tlsParams`                       | Object  | Configuration parameters to use TLS encrypted modbus tcp slave. (untested)                                            |
@@ -151,10 +158,15 @@ The `/app/modbus_server.json` file comes with following content:
 | `server.logging`                         | Object  | Log specific configuration.                                                                                           |
 | `server.logging.format`                  | String  | The format of the log messages as described here: https://docs.python.org/3/library/logging.html#logrecord-attributes |
 | `server.logging.logLevel`                | String  | Defines the maximum level of severity to log to std out. Possible values are `DEBUG`, `INFO`, `WARN` and `ERROR`.     |
-| `server.persistence`                     | Object  | Configuration for the persistence layer to  automatically saved and restored after the server is restarted.  |
-| `server.persistence.enabled`             | Boolean | If `true` the persistence will be enabled. |
-| `server.persistence.file`                | String  | The file to store the persistent data (if enabled). |
-| `server.persistence.saveInterval`        | Integer | The interval in seconds when to save the registers (this will be only done if there are changes). |
+| `server.persistence`                     | Object  | Configuration for the persistence layer to  automatically saved and restored after the server is restarted.           |
+| `server.persistence.enabled`             | Boolean | If `true` the persistence will be enabled.                                                                            |
+| `server.persistence.file`                | String  | The file to store the persistent data (if enabled).                                                                   |
+| `server.persistence.saveInterval`        | Integer | The interval in seconds when to save the registers (this will be only done if there are changes).                     |
+| `metrics`                                | Object  | Configuration of the Prometheus/Open Telemetry exporter.                                                              |
+| `metrics.enabled`                        | Boolean | If `true` the metrics endpoint will be enabled.                                                                       |
+| `metrics.address`                        | String  | The IPv4 address to bind to for the metrics endpoint. `0.0.0.0` lets the server listen on all interface addresses.    |
+| `metrics.port`                           | Integer | TCP port of the HTTP metrics endpoint (default: `9090`).                                                              |
+| `metrics.path`                           | String  | The URL path, where the endpoint serves the metrics (default: `/metrics`).                                            |
 | `registers`                              | Object  | Configuration parameters to predefine registers.                                                                      |
 | `registers.description`                  | String  | No configuration option, just a description of the parameters.                                                        |
 | `registers.initializeUndefinedRegisters` | Boolean | If `true` the server will initialize all not defined registers with a default value of `0`.                           |
@@ -281,6 +293,11 @@ For critical applications, you should create regular backups. When using Docker,
 # Cron-Job for daily backup
 0 2 * * * cp /local/path/to/modbus_registers.json /local/backuppath/to/modbus_registers_$(date +\%Y\%m\%d).json
 ```
+
+# Metrics endpoint
+
+TODO
+
 
 
 # Docker compose configuration

@@ -4,7 +4,7 @@ Modbus TCP server script for debugging
 Author: Michael Oberdorf IT-Consulting
 Datum: 2020-03-30
 Last modified by: Michael Oberdorf
-Last modified at: 2026-02-07
+Last modified at: 2026-02-18
 *************************************************************************** """
 import argparse
 import json
