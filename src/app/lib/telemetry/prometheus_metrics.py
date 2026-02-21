@@ -15,7 +15,7 @@
 __author__ = "Michael Oberdorf <info@oberdorf-itc.de>"
 __status__ = "production"
 __date__ = "2026-02-21"
-__version_info__ = ("1", "1", "0")
+__version_info__ = ("1", "1", "1")
 __version__ = ".".join(__version_info__)
 
 __all__ = ["PrometheusMetrics"]
@@ -269,7 +269,7 @@ class PrometheusMetrics:
             lines.append("# TYPE cpu_load1_percentage gauge")
             lines.append(
                 self._format_metric_line(
-                    "cpu_load1_percentage", psutil.getloadavg()[0] / psutil.cpu_count(logical=True) * 100
+                    "cpu_load1_percentage", round(psutil.getloadavg()[0] / psutil.cpu_count(logical=True) * 100, 1)
                 )
             )
             lines.append("")
@@ -277,7 +277,7 @@ class PrometheusMetrics:
             lines.append("# TYPE cpu_load5_percentage gauge")
             lines.append(
                 self._format_metric_line(
-                    "cpu_load5_percentage", psutil.getloadavg()[1] / psutil.cpu_count(logical=True) * 100
+                    "cpu_load5_percentage", round(psutil.getloadavg()[1] / psutil.cpu_count(logical=True) * 100, 1)
                 )
             )
             lines.append("")
@@ -285,7 +285,7 @@ class PrometheusMetrics:
             lines.append("# TYPE cpu_load15_percentage gauge")
             lines.append(
                 self._format_metric_line(
-                    "cpu_load15_percentage", psutil.getloadavg()[2] / psutil.cpu_count(logical=True) * 100
+                    "cpu_load15_percentage", round(psutil.getloadavg()[2] / psutil.cpu_count(logical=True) * 100, 1)
                 )
             )
 
