@@ -7,30 +7,28 @@ Source code: [GitHub](https://github.com/cybcon/modbus-server)
 Container image: [DockerHub](https://hub.docker.com/r/oitc/modbus-server)
 
 <!-- SHIELD GROUP -->
-[![][github-action-test-shield]][github-action-test-link]
-[![][github-action-release-shield]][github-action-release-link]
-[![][github-release-shield]][github-release-link]
-[![][github-releasedate-shield]][github-releasedate-link]
-[![][github-stars-shield]][github-stars-link]
-[![][github-forks-shield]][github-forks-link]
-[![][github-issues-shield]][github-issues-link]
-[![][github-license-shield]][github-license-link]
+[![GitHub Tests][github-action-test-shield]][github-action-test-link]
+[![GitHub Release][github-action-release-shield]][github-action-release-link]
+[![Latest Release][github-release-shield]][github-release-link]
+[![Release Date][github-releasedate-shield]][github-releasedate-link]
+[![GitHub Stars][github-stars-shield]][github-stars-link]
+[![GitHub Forks][github-forks-shield]][github-forks-link]
+[![GitHub Issues][github-issues-shield]][github-issues-link]
+[![License][github-license-shield]][github-license-link]
 
-[![][docker-release-shield]][docker-release-link]
-[![][docker-pulls-shield]][docker-pulls-link]
-[![][docker-stars-shield]][docker-stars-link]
-[![][docker-size-shield]][docker-size-link]
+[![Docker Release][docker-release-shield]][docker-release-link]
+[![Docker Pulls][docker-pulls-shield]][docker-pulls-link]
+[![Docker Stars][docker-stars-shield]][docker-stars-link]
+[![Docker Size][docker-size-shield]][docker-size-link]
 
-# Supported tags and respective `Dockerfile` links
+## Supported tags and respective `Dockerfile` links
 
 * [`latest`, `2.2.0`](https://github.com/cybcon/modbus-server/blob/v2.2.0/Dockerfile)
 * [`2.1.0`](https://github.com/cybcon/modbus-server/blob/v2.1.0/Dockerfile)
 * [`2.0.0`](https://github.com/cybcon/modbus-server/blob/v2.0.0/Dockerfile)
 * [`1.4.1`](https://github.com/cybcon/modbus-server/blob/v1.4.1/Dockerfile)
-* [`1.4.0`](https://github.com/cybcon/modbus-server/blob/v1.4.0/Dockerfile)
-* [`1.3.2`](https://github.com/cybcon/modbus-server/blob/v1.3.2/Dockerfile)
 
-# What is Modbus TCP Server?
+## What is Modbus TCP Server?
 
 The Modbus TCP Server is a simple, written in python, Modbus TCP server.
 The Modbus registers can also be predefined with values.
@@ -40,7 +38,7 @@ for enhanced tests with modbus masters and to test collecting values from differ
 
 The Modbus specification can be found here: [PDF](https://modbus.org/docs/Modbus_Application_Protocol_V1_1b3.pdf)
 
-# Own Docker builds and version pinning
+## Own Docker builds and version pinning
 
 If you want to build your own container image with the [Dockerfile](./Dockerfile) you should know that the file uses version pinning to have a deterministic environment for the application.
 This is a best practice and described in [Hadolint DL3018](https://github.com/hadolint/hadolint/wiki/DL3018).
@@ -48,16 +46,14 @@ This is a best practice and described in [Hadolint DL3018](https://github.com/ha
 The problem is, that Alpine Linux doesn't keep old versions inside the software repository. When software will be updated, the old (pinned) version will be removed and is so no longer available.
 Docker builds will be successful today and fail tomorrow.
 
-See also here: https://github.com/hadolint/hadolint/issues/464
-
+See also here: [https://github.com/hadolint/hadolint/issues/464](https://github.com/hadolint/hadolint/issues/464)
 
 The [Dockerfile](./Dockerfile) in this repo may have an not working stand of pinned versions. When you run in errors during your own build, please:
 
 1. Update the versions inside the Dockerfile for your own
 2. Don't create an issue in the Github repo, because this is a known issue
 
-
-# QuickStart with Modbus TCP Server and Docker
+## QuickStart with Modbus TCP Server and Docker
 
 Step - 1 : Pull the Modbus TCP Server
 
@@ -86,8 +82,9 @@ or you mount the config file over the default file, then you can skip the file p
 docker run --rm -p 5020:5020 -v ./server_config.json:/app/modbus_server.json oitc/modbus-server:latest
 ```
 
-# Configuration
-## Container configuration
+## Configuration
+
+### Container configuration
 
 The container reads some configuration via environment variables.
 
@@ -95,13 +92,13 @@ The container reads some configuration via environment variables.
 |------------------------------|------------------------------------------------------------------------------------|--------------|---------------------------|
 | `CONFIG_FILE`                | The configuration file that that should be used to build the initial Modbus slave. | **OPTIONAL** | `/app/modbus_server.json` |
 
+### Parameters
 
-## Parameter
 Alternatively, the container can also be configured with a command line option `-f <file>` instead of an environment variable. By default, the script will use `/app/modbus_server.json`.
 
+### Configuration file
 
-## Configuration file
-### Default configuration file of the container
+#### Default configuration file of the container
 
 The `/app/modbus_server.json` file comes with following content:
 
@@ -143,7 +140,7 @@ The `/app/modbus_server.json` file comes with following content:
 }
 ```
 
-### Field description
+#### Field description
 
 | Field                                    | Type    | Description                                                                                                           |
 |------------------------------------------|---------|-----------------------------------------------------------------------------------------------------------------------|
@@ -156,7 +153,7 @@ The `/app/modbus_server.json` file comes with following content:
 | `server.tlsParams.privateKey`            | String  | Filesystem path of the private key to use for a TLS encrypted communication.                                          |
 | `server.tlsParams.certificate`           | String  | Filesystem path of the TLS certificate to use for a TLS encrypted communication.                                      |
 | `server.logging`                         | Object  | Log specific configuration.                                                                                           |
-| `server.logging.format`                  | String  | The format of the log messages as described here: https://docs.python.org/3/library/logging.html#logrecord-attributes |
+| `server.logging.format`                  | String  | The format of the log messages.                                                                                       |
 | `server.logging.logLevel`                | String  | Defines the maximum level of severity to log to std out. Possible values are `DEBUG`, `INFO`, `WARN` and `ERROR`.     |
 | `server.persistence`                     | Object  | Configuration for the persistence layer to  automatically saved and restored after the server is restarted.           |
 | `server.persistence.enabled`             | Boolean | If `true` the persistence will be enabled.                                                                            |
@@ -175,14 +172,19 @@ The `/app/modbus_server.json` file comes with following content:
 | `registers.holdingRegister`              | Object  | The pre-defined registers of the register type "Holding Registers".                                                   |
 | `registers.inputRegister`                | Object  | The pre-defined registers of the register type "Input Registers".                                                     |
 
-### Pre-define Registers within the configuration file
+#### Log message formatting
+
+The format of the log message, defined in `server.logging.format` is described here: [https://docs.python.org/3/library/logging.html#logrecord-attributes](https://docs.python.org/3/library/logging.html#logrecord-attributes).
+
+#### Pre-define Registers within the configuration file
 
 Pre-define registers always starts with the register number. We use a json format as configuration file, so the "key" needs to be a string. So, the register number needs also to be a string. During server initialization, the json key that represents the register number will be converted to an integer.
 
 As by the modbus spec, the "Discrete Input" and "Coils" registers contains a single bit. In the json configuration file, we use `true` or `false` as register values.
 
 Example configuration of pre-defined registers from type "Discrete Input" or "Coils":
-```
+
+```json
 [..]
   "<register_type>": {
     "0": true,
@@ -197,7 +199,8 @@ As by the modbus spec, the "Holding Registers" and "Input Registers" tables cont
 With v1.2.0 of the modbus-server, you can also use integer values (0-65535) instead.
 
 Example configuration of pre-defined registers from type "Holding Registers" or "Input Registers":
-```
+
+```json
 [..]
   "<register_type>": {
     "9": "0xAA00",
@@ -208,38 +211,39 @@ Example configuration of pre-defined registers from type "Holding Registers" or 
 [..]
 ```
 
+### Configuration file examples
 
-## Configuration file examples
+* [src/app/modbus_server.json](https://github.com/cybcon/modbus-server/blob/main/src/app/modbus_server.json)
+* [examples/abb_coretec_example.json](https://github.com/cybcon/modbus-server/blob/main/examples/abb_coretec_example.json)
+* [examples/test.json](https://github.com/cybcon/modbus-server/blob/main/examples/test.json)
+* [examples/udp.json](https://github.com/cybcon/modbus-server/blob/main/examples/udp.json)
 
-- [src/app/modbus_server.json](https://github.com/cybcon/modbus-server/blob/main/src/app/modbus_server.json)
-- [examples/abb_coretec_example.json](https://github.com/cybcon/modbus-server/blob/main/examples/abb_coretec_example.json)
-- [examples/test.json](https://github.com/cybcon/modbus-server/blob/main/examples/test.json)
-- [examples/udp.json](https://github.com/cybcon/modbus-server/blob/main/examples/udp.json)
-
-
-# Data persistence
+## Data persistence
 
 The persistence layer enables all register changes (made by Modbus write accesses) to be automatically saved and restored after the server is restarted.
 
-## Functionality
+### Functionality
 
-### When starting up
-- The server checks whether a persistence file exists.
-- **If YES**: Loads all register values from the file (initial configuration is skipped)
-- **If NO**: Use the initial configuration from `modbus_server.json`
+#### When starting up
 
-### During operation
-- A background thread periodically saves the register data (default: every 30 seconds).
-- Only changed data is saved (optimized for performance)
-- Uses atomic writes (prevents data loss in case of crashes)
+* The server checks whether a persistence file exists.
+* **If YES**: Loads all register values from the file (initial configuration is skipped)
+* **If NO**: Use the initial configuration from `modbus_server.json`
 
-### When shutting down
-- A final save is performed.
-- All current register values are backed up.
+#### During operation
 
-## Configuration
+* A background thread periodically saves the register data (default: every 30 seconds).
+* Only changed data is saved (optimized for performance)
+* Uses atomic writes (prevents data loss in case of crashes)
 
-### Enable persistence
+#### When shutting down
+
+* A final save is performed.
+* All current register values are backed up.
+
+### Configuration of the persistence layer
+
+#### Enable persistence
 
 Add the following section to your `modbus_server.json`:
 
@@ -251,11 +255,12 @@ Add the following section to your `modbus_server.json`:
     "file": "/app/modbus_registers.json",
     "saveInterval": 30
   },
+  "metrics": { ... },
   "registers": { ... }
 }
 ```
 
-## Persistence file format
+### Persistence file format
 
 The persistence file is saved as JSON:
 
@@ -285,7 +290,7 @@ The persistence file is saved as JSON:
 
 **Hint:** Only registers with values ≠ 0 are stored (space-saving).
 
-## Backup
+### Backup
 
 For critical applications, you should create regular backups. When using Docker, you need to mount a local directory as volume to `/data` inside the container first.
 
@@ -294,13 +299,58 @@ For critical applications, you should create regular backups. When using Docker,
 0 2 * * * cp /local/path/to/modbus_registers.json /local/backuppath/to/modbus_registers_$(date +\%Y\%m\%d).json
 ```
 
-# Metrics endpoint
+## Metrics endpoint
 
-TODO
+When activating the metrics endpoint, the modbus server provides to html endpoints:
 
+* `/health`: the health endpoint only shows the text string `OK` and can be used for monitoring. There is no other functionality behind.
+* `/metrics`: the metrics endpoint that provides system and operational metrics about python and the modbus server usage. The endpoint path can be changed in the configuration file.
 
+### Metrics endpoint metrics
 
-# Docker compose configuration
+Following metrics will be collected:
+
+* memory_total_bytes: Gauge of total system memory
+* memory_available_bytes: Gauge of available system memory
+* memory_consumption_bytes: Gauge of current memory usage
+* memory_consumption_percentage: Gauge of memory usage percentage
+* cpu_usage_percentage: Gauge of current CPU usage percentage
+* cpu_count: Gauge of number of CPU cores
+* cpu_load1: Gauge of 1-minute load average per CPU
+* cpu_load5: Gauge of 5-minute load average per CPU
+* cpu_load15: Gauge of 15-minute load average per CPU
+* cpu_load1_percentage: Gauge of 1-minute load average as percentage of CPU capacity
+* cpu_load5_percentage: Gauge of 5-minute load average as percentage of CPU capacity
+* cpu_load15_percentage: Gauge of 15-minute load average as percentage of CPU capacity
+* modbus_requests_total: Counter of requests by function code
+* modbus_register_reads_total: Counter of read operations per register
+* modbus_register_writes_total: Counter of write operations per register
+* modbus_errors_total: Counter of errors by exception code
+* modbus_server_uptime_seconds: Counter of server uptime
+
+### Configuration of the metrics endpoint
+
+Add the following section to your `modbus_server.json`:
+
+```json
+{
+  "server": { ... },
+  "persistence": { ... },
+  "metrics": {
+    "enabled": true,
+    "address": "0.0.0.0",
+    "port": 9090,
+    "path": "/metrics"
+  },
+  "registers": { ... }
+}
+```
+
+### Metrics output example
+
+An output example of the metrics can be found here: [examples/metrics_example.txt](https://github.com/cybcon/modbus-server/blob/main/examples/metrics_example.txt)
+
+## Docker compose configuration
 
 ```yaml
 services:
@@ -311,18 +361,19 @@ services:
     command: -f /server_config.json
     ports:
       - 5020:5020
+      - 9090:9090
     volumes:
       - ./server.json:/server_config.json:ro
       - ./data:/data:rw
 ```
 
-# Donate
+## Donate
+
 I would appreciate a small donation to support the further development of my open source projects.
 
-<a href="https://www.paypal.com/donate/?hosted_button_id=BHGJGGUS6RH44" target="_blank"><img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" alt="Donate with PayPal" width="200px"></a>
+[![Donate with PayPal][donate-paypal-button]][donate-paypal-link]
 
-
-# License
+## License
 
 Copyright (c) 2020-2026 Michael Oberdorf IT-Consulting
 
@@ -353,10 +404,11 @@ SOFTWARE.
 [docker-size-shield]: https://img.shields.io/docker/image-size/oitc/modbus-server?color=369eff&labelColor=black&style=flat-square
 [docker-stars-link]: https://hub.docker.com/r/oitc/modbus-server
 [docker-stars-shield]: https://img.shields.io/docker/stars/oitc/modbus-server?color=45cc11&labelColor=black&style=flat-square
+[donate-paypal-button]: https://raw.githubusercontent.com/cybcon/paypal-donate-button/refs/heads/master/paypal-donate-button_200x77.png
+[donate-paypal-link]: https://www.paypal.com/donate/?hosted_button_id=BHGJGGUS6RH44
 [github-action-release-link]: https://github.com/cybcon/modbus-server/actions/workflows/release-from-label.yaml
 [github-action-release-shield]: https://img.shields.io/github/actions/workflow/status/cybcon/modbus-server/release-from-label.yaml?label=release&labelColor=black&logo=githubactions&logoColor=white&style=flat-square
 [github-action-test-link]: https://github.com/cybcon/modbus-server/actions/workflows/test.yaml
-[github-action-test-shield-original]: https://github.com/cybcon/modbus-server/actions/workflows/test.yaml/badge.svg
 [github-action-test-shield]: https://img.shields.io/github/actions/workflow/status/cybcon/modbus-server/test.yaml?label=tests&labelColor=black&logo=githubactions&logoColor=white&style=flat-square
 [github-forks-link]: https://github.com/cybcon/modbus-server/network/members
 [github-forks-shield]: https://img.shields.io/github/forks/cybcon/modbus-server?color=8ae8ff&labelColor=black&style=flat-square
