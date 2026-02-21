@@ -13,6 +13,11 @@
     "logLevel": "DEBUG"
     }
   },
+"persistence": {
+  "enabled": false,
+  "file": "/data/modbus_registers.json",
+  "saveInterval": 30
+},
 "metrics": {
   "enabled": false,
   "address": "0.0.0.0",
