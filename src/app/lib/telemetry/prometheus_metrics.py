@@ -8,14 +8,14 @@
 # Author: Michael Oberdorf
 # Date: 2026-02-18
 # Last modified by: Michael Oberdorf
-# Last modified at: 2026-02-18
+# Last modified at: 2026-02-21
 ###############################################################################\n
 """
 
 __author__ = "Michael Oberdorf <info@oberdorf-itc.de>"
 __status__ = "production"
-__date__ = "2026-02-18"
-__version_info__ = ("1", "0", "0")
+__date__ = "2026-02-21"
+__version_info__ = ("1", "1", "0")
 __version__ = ".".join(__version_info__)
 
 __all__ = ["PrometheusMetrics"]
@@ -25,18 +25,34 @@ import time
 from collections import defaultdict
 from typing import Dict, Optional
 
+import psutil
+
 
 class PrometheusMetrics:
     """
     Collects and exposes Prometheus metrics for Modbus server activity.
 
     Metrics collected:
+    - memory_total_bytes: Gauge of total system memory
+    - memory_available_bytes: Gauge of available system memory
+    - memory_consumption_bytes: Gauge of current memory usage
+    - memory_consumption_percentage: Gauge of memory usage percentage
+    - cpu_usage_percentage: Gauge of current CPU usage percentage
+    - cpu_count: Gauge of number of CPU cores
+    - cpu_load1: Gauge of 1-minute load average per CPU
+    - cpu_load5: Gauge of 5-minute load average per CPU
+    - cpu_load15: Gauge of 15-minute load average per CPU
+    - cpu_load1_percentage: Gauge of 1-minute load average as percentage of CPU capacity
+    - cpu_load5_percentage: Gauge of 5-minute load average as percentage of CPU capacity
+    - cpu_load15_percentage: Gauge of 15-minute load average as percentage of CPU capacity
     - modbus_requests_total: Counter of requests by function code
     - modbus_register_reads_total: Counter of read operations per register
     - modbus_register_writes_total: Counter of write operations per register
     - modbus_errors_total: Counter of errors by exception code
-    - modbus_connected_clients: Gauge of currently connected clients
     - modbus_server_uptime_seconds: Counter of server uptime
+
+    Metrics disabled:
+    - modbus_connected_clients: Gauge of current active client connections (disabled due to complexity of tracking in async environment)
     """
 
     # Modbus function code names for better readability
@@ -208,7 +224,73 @@ class PrometheusMetrics:
         lines = []
 
         with self._lock:
+            # memory statistics
+            lines.append("# HELP memory_total_bytes Total available memory in bytes")
+            lines.append("# TYPE memory_total_bytes gauge")
+            lines.append(self._format_metric_line("memory_total_bytes", psutil.virtual_memory().total))
+            lines.append("")
+            lines.append("# HELP memory_available_bytes Current available memory in bytes")
+            lines.append("# TYPE memory_available_bytes gauge")
+            lines.append(self._format_metric_line("memory_available_bytes", psutil.virtual_memory().available))
+            lines.append("")
+            lines.append("# HELP memory_consumption_bytes Current memory consumption in bytes")
+            lines.append("# TYPE memory_consumption_bytes gauge")
+            lines.append(self._format_metric_line("memory_consumption_bytes", psutil.virtual_memory().used))
+            lines.append("")
+            lines.append("# HELP memory_consumption_percentage Current memory consumption percentage")
+            lines.append("# TYPE memory_consumption_percentage gauge")
+            lines.append(self._format_metric_line("memory_consumption_percentage", psutil.virtual_memory().percent))
+
+            # cpu statistics
+            lines.append("")
+            lines.append("# HELP cpu_usage_percentage Current CPU usage percentage")
+            lines.append("# TYPE cpu_usage_percentage gauge")
+            lines.append(self._format_metric_line("cpu_usage_percentage", psutil.cpu_percent(interval=0.1)))
+            lines.append("")
+            lines.append("# HELP cpu_count Number of CPU cores")
+            lines.append("# TYPE cpu_count gauge")
+            lines.append(self._format_metric_line("cpu_count", psutil.cpu_count(logical=True)))
+            lines.append("")
+            lines.append("# HELP cpu_load1 Load average over 1 minute")
+            lines.append("# TYPE cpu_load1 gauge")
+            lines.append(self._format_metric_line("cpu_load1", psutil.getloadavg()[0] / psutil.cpu_count(logical=True)))
+            lines.append("")
+            lines.append("# HELP cpu_load5 Load average over 5 minutes")
+            lines.append("# TYPE cpu_load5 gauge")
+            lines.append(self._format_metric_line("cpu_load5", psutil.getloadavg()[1] / psutil.cpu_count(logical=True)))
+            lines.append("")
+            lines.append("# HELP cpu_load15 Load average over 15 minutes")
+            lines.append("# TYPE cpu_load15 gauge")
+            lines.append(
+                self._format_metric_line("cpu_load15", psutil.getloadavg()[2] / psutil.cpu_count(logical=True))
+            )
+            lines.append("")
+            lines.append("# HELP cpu_load1_percentage Load average percentage over 1 minute")
+            lines.append("# TYPE cpu_load1_percentage gauge")
+            lines.append(
+                self._format_metric_line(
+                    "cpu_load1_percentage", psutil.getloadavg()[0] / psutil.cpu_count(logical=True) * 100
+                )
+            )
+            lines.append("")
+            lines.append("# HELP cpu_load5_percentage Load average percentage over 5 minutes")
+            lines.append("# TYPE cpu_load5_percentage gauge")
+            lines.append(
+                self._format_metric_line(
+                    "cpu_load5_percentage", psutil.getloadavg()[1] / psutil.cpu_count(logical=True) * 100
+                )
+            )
+            lines.append("")
+            lines.append("# HELP cpu_load15_percentage Load average percentage over 15 minutes")
+            lines.append("# TYPE cpu_load15_percentage gauge")
+            lines.append(
+                self._format_metric_line(
+                    "cpu_load15_percentage", psutil.getloadavg()[2] / psutil.cpu_count(logical=True) * 100
+                )
+            )
+
             # modbus_requests_total
+            lines.append("")
             lines.append("# HELP modbus_requests_total Total number of Modbus requests received, by function code")
             lines.append("# TYPE modbus_requests_total counter")
             for func_code, count in sorted(self._requests_by_function.items()):
@@ -246,10 +328,10 @@ class PrometheusMetrics:
                 lines.append(self._format_metric_line("modbus_errors_total", count, labels))
 
             # modbus_connected_clients
-            lines.append("")
-            lines.append("# HELP modbus_connected_clients Current number of active Modbus TCP client connections")
-            lines.append("# TYPE modbus_connected_clients gauge")
-            lines.append(self._format_metric_line("modbus_connected_clients", self._connected_clients))
+            # lines.append("")
+            # lines.append("# HELP modbus_connected_clients Current number of active Modbus TCP client connections")
+            # lines.append("# TYPE modbus_connected_clients gauge")
+            # lines.append(self._format_metric_line("modbus_connected_clients", self._connected_clients))
 
             # modbus_server_uptime_seconds
             lines.append("")
