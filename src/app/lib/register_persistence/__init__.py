@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ###############################################################################
 # Library to make register writes persistent across restarts of the modbus server.
@@ -7,14 +6,14 @@
 # Author: Michael Oberdorf
 # Date: 2026-02-07
 # Last modified by: Michael Oberdorf
-# Last modified at: 2026-02-08
+# Last modified at: 2026-02-21
 ###############################################################################\n
 """
 
 __author__ = "Michael Oberdorf <info@oberdorf-itc.de>"
 __status__ = "production"
-__date__ = "2026-02-08"
-__version_info__ = ("1", "0", "2")
+__date__ = "2026-02-21"
+__version_info__ = ("1", "1", "0")
 __version__ = ".".join(__version_info__)
 
 __all__ = ["RegisterPersistence"]
@@ -73,7 +72,7 @@ class RegisterPersistence:
             return None
 
         try:
-            with open(self.persistence_file, "r", encoding="utf-8") as f:
+            with open(self.persistence_file, encoding="utf-8") as f:
                 data = json.load(f)
             self.logger.info(f"Successfully loaded register data from {self.persistence_file}")
             return data
@@ -146,6 +145,15 @@ class RegisterPersistence:
                 store = slave_context.store["i"]
             else:
                 return result
+
+            # Unwrap any wrapper blocks (e.g. metrics wrappers) to access the underlying store
+            try:
+                # unwrap multiple layers if necessary
+                while hasattr(store, "wrapped_block"):
+                    store = getattr(store, "wrapped_block")
+            except Exception:
+                # if unwrapping fails, log and continue with original store
+                self.logger.debug("Failed to unwrap store wrapper, continuing with original store")
 
             # Check if it's a sparse or sequential block
             if isinstance(store, ModbusSparseDataBlock):

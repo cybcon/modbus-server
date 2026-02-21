@@ -1,7 +1,7 @@
 FROM alpine:3.23.3
 
 LABEL maintainer="Michael Oberdorf IT-Consulting <info@oberdorf-itc.de>"
-LABEL site.local.program.version="2.1.0"
+LABEL site.local.program.version="2.2.0"
 
 RUN apk upgrade --available --no-cache --update \
     && apk add --no-cache --update \
@@ -19,6 +19,7 @@ RUN pip3 install --no-cache-dir -r /requirements.txt --break-system-packages
 
 EXPOSE 5020/tcp
 EXPOSE 5020/udp
+EXPOSE 9090/tcp
 
 USER 1434:1434
 

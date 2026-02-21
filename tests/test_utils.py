@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from src.app.modbus_server import get_ip_address
 
 

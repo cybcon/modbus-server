@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Unit tests for the RegisterPersistence library
 """
@@ -145,7 +144,7 @@ class TestSaveRegisters:
         assert os.path.isfile(temp_persistence_file)
 
         # Verify saved data
-        with open(temp_persistence_file, "r") as f:
+        with open(temp_persistence_file) as f:
             saved_data = json.load(f)
 
         assert "discrete_inputs" in saved_data
@@ -195,7 +194,7 @@ class TestSaveRegisters:
 
         # Save initial data
         persistence.save_registers()
-        with open(temp_persistence_file, "r") as f:
+        with open(temp_persistence_file) as f:
             initial_data = json.load(f)
 
         # Try to save with error
@@ -203,7 +202,7 @@ class TestSaveRegisters:
             persistence.save_registers()
 
         # Original file should still exist with original data
-        with open(temp_persistence_file, "r") as f:
+        with open(temp_persistence_file) as f:
             current_data = json.load(f)
 
         assert current_data == initial_data

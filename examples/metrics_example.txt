@@ -1,0 +1,103 @@
+# HELP memory_total_bytes Total available memory in bytes
+# TYPE memory_total_bytes gauge
+memory_total_bytes 4093587456
+
+# HELP memory_available_bytes Current available memory in bytes
+# TYPE memory_available_bytes gauge
+memory_available_bytes 325832704
+
+# HELP memory_consumption_bytes Current memory consumption in bytes
+# TYPE memory_consumption_bytes gauge
+memory_consumption_bytes 3524468736
+
+# HELP memory_consumption_percentage Current memory consumption percentage
+# TYPE memory_consumption_percentage gauge
+memory_consumption_percentage 92.0
+
+# HELP cpu_usage_percentage Current CPU usage percentage
+# TYPE cpu_usage_percentage gauge
+cpu_usage_percentage 0.0
+
+# HELP cpu_count Number of CPU cores
+# TYPE cpu_count gauge
+cpu_count 2
+
+# HELP cpu_load1 Load average over 1 minute
+# TYPE cpu_load1 gauge
+cpu_load1 0.085
+
+# HELP cpu_load5 Load average over 5 minutes
+# TYPE cpu_load5 gauge
+cpu_load5 0.215
+
+# HELP cpu_load15 Load average over 15 minutes
+# TYPE cpu_load15 gauge
+cpu_load15 0.22
+
+# HELP cpu_load1_percentage Load average percentage over 1 minute
+# TYPE cpu_load1_percentage gauge
+cpu_load1_percentage 8.5
+
+# HELP cpu_load5_percentage Load average percentage over 5 minutes
+# TYPE cpu_load5_percentage gauge
+cpu_load5_percentage 21.5
+
+# HELP cpu_load15_percentage Load average percentage over 15 minutes
+# TYPE cpu_load15_percentage gauge
+cpu_load15_percentage 22.0
+
+# HELP modbus_requests_total Total number of Modbus requests received, by function code
+# TYPE modbus_requests_total counter
+modbus_requests_total{function_code="01",function_name="read_coils"} 43
+modbus_requests_total{function_code="02",function_name="read_discrete_inputs"} 1
+modbus_requests_total{function_code="03",function_name="read_holding_registers"} 34
+modbus_requests_total{function_code="05",function_name="write_single_coil"} 3
+modbus_requests_total{function_code="06",function_name="write_single_register"} 2
+
+# HELP modbus_register_reads_total Total number of read operations per register
+# TYPE modbus_register_reads_total counter
+modbus_register_reads_total{address="2",type="coil"} 37
+modbus_register_reads_total{address="3",type="coil"} 34
+modbus_register_reads_total{address="4",type="coil"} 34
+modbus_register_reads_total{address="5",type="coil"} 34
+modbus_register_reads_total{address="6",type="coil"} 37
+modbus_register_reads_total{address="7",type="coil"} 34
+modbus_register_reads_total{address="8",type="coil"} 34
+modbus_register_reads_total{address="9",type="coil"} 34
+modbus_register_reads_total{address="10",type="coil"} 37
+modbus_register_reads_total{address="11",type="coil"} 34
+modbus_register_reads_total{address="2",type="discrete_input"} 1
+modbus_register_reads_total{address="3",type="discrete_input"} 1
+modbus_register_reads_total{address="4",type="discrete_input"} 1
+modbus_register_reads_total{address="5",type="discrete_input"} 1
+modbus_register_reads_total{address="6",type="discrete_input"} 1
+modbus_register_reads_total{address="7",type="discrete_input"} 1
+modbus_register_reads_total{address="8",type="discrete_input"} 1
+modbus_register_reads_total{address="9",type="discrete_input"} 1
+modbus_register_reads_total{address="10",type="discrete_input"} 1
+modbus_register_reads_total{address="11",type="discrete_input"} 1
+modbus_register_reads_total{address="2",type="holding"} 29
+modbus_register_reads_total{address="3",type="holding"} 29
+modbus_register_reads_total{address="4",type="holding"} 29
+modbus_register_reads_total{address="5",type="holding"} 29
+modbus_register_reads_total{address="6",type="holding"} 29
+modbus_register_reads_total{address="7",type="holding"} 31
+modbus_register_reads_total{address="8",type="holding"} 29
+modbus_register_reads_total{address="9",type="holding"} 29
+modbus_register_reads_total{address="10",type="holding"} 29
+modbus_register_reads_total{address="11",type="holding"} 32
+
+# HELP modbus_register_writes_total Total number of write operations per register
+# TYPE modbus_register_writes_total counter
+modbus_register_writes_total{address="2",type="coil"} 1
+modbus_register_writes_total{address="6",type="coil"} 1
+modbus_register_writes_total{address="10",type="coil"} 1
+modbus_register_writes_total{address="7",type="holding"} 1
+modbus_register_writes_total{address="11",type="holding"} 1
+
+# HELP modbus_errors_total Total number of Modbus errors returned, by exception code
+# TYPE modbus_errors_total counter
+
+# HELP modbus_server_uptime_seconds Total uptime of the mock server in seconds
+# TYPE modbus_server_uptime_seconds counter
+modbus_server_uptime_seconds 90.30
