@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from src.app.lib.telemetry.metrics_datastore import MetricsTrackingDataBlock
 from src.app.lib.telemetry.prometheus_metrics import PrometheusMetrics
 

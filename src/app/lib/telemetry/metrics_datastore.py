@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ###############################################################################
 # Modbus datastore wrapper with metrics tracking.

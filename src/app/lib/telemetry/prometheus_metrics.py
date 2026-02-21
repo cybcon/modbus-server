@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ###############################################################################
 # Prometheus metrics collector for Modbus Server.

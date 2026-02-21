@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ###############################################################################
 # HTTP server for Prometheus metrics endpoint.

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import re
 
 from src.app.lib.telemetry.prometheus_metrics import PrometheusMetrics

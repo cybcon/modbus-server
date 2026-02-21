@@ -1,11 +1,11 @@
-# -*- coding: utf-8 -*-
-""" ***************************************************************************
+"""***************************************************************************
 Modbus TCP server script for debugging
 Author: Michael Oberdorf IT-Consulting
 Datum: 2020-03-30
 Last modified by: Michael Oberdorf
-Last modified at: 2026-02-18
-*************************************************************************** """
+Last modified at: 2026-02-21
+***************************************************************************"""
+
 import argparse
 import json
 import logging
@@ -472,7 +472,7 @@ if __name__ == "__main__":
 
     # start metrics server for telemetry output if enabled in configuration
     metrics_config = CONFIG.get("metrics", {})
-    (metrics_collector, metrics_server) = initialize_metrics_server(
+    metrics_collector, metrics_server = initialize_metrics_server(
         enabled=metrics_config.get("enabled", False),
         address=metrics_config.get("address", "0.0.0.0"),
         port=metrics_config.get("port", 9090),

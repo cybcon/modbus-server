@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ###############################################################################
 # Library to make register writes persistent across restarts of the modbus server.
@@ -73,7 +72,7 @@ class RegisterPersistence:
             return None
 
         try:
-            with open(self.persistence_file, "r", encoding="utf-8") as f:
+            with open(self.persistence_file, encoding="utf-8") as f:
                 data = json.load(f)
             self.logger.info(f"Successfully loaded register data from {self.persistence_file}")
             return data
