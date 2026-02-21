@@ -8,22 +8,23 @@
 # Author: Michael Oberdorf
 # Date: 2026-02-18
 # Last modified by: Michael Oberdorf
-# Last modified at: 2026-02-18
+# Last modified at: 2026-02-21
 ###############################################################################\n
 """
 
 __author__ = "Michael Oberdorf <info@oberdorf-itc.de>"
 __status__ = "production"
-__date__ = "2026-02-18"
-__version_info__ = ("1", "0", "1")
+__date__ = "2026-02-21"
+__version_info__ = ("1", "0", "2")
 __version__ = ".".join(__version_info__)
 
 __all__ = ["MetricsTrackingDataBlock"]
 
 import logging
 
-from prometheus_metrics import PrometheusMetrics
 from pymodbus.datastore.store import BaseModbusDataBlock
+
+from .prometheus_metrics import PrometheusMetrics
 
 log = logging.getLogger(__name__)
 
