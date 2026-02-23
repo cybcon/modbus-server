@@ -104,18 +104,18 @@ The `/app/modbus_server.json` file comes with following content:
 
 ```json
 {
-"server": {
-  "listenerAddress": "0.0.0.0",
-  "listenerPort": 5020,
-  "protocol": "TCP",
-  "tlsParams": {
-    "description": "path to certificate and private key to enable tls",
-    "privateKey": null,
-    "certificate": null
+  "server": {
+    "listenerAddress": "0.0.0.0",
+    "listenerPort": 5020,
+    "protocol": "TCP",
+    "tlsParams": {
+      "description": "path to certificate and private key to enable tls",
+      "privateKey": null,
+      "certificate": null
     },
-  "logging": {
-    "format": "%(asctime)-15s %(threadName)-15s  %(levelname)-8s %(module)-15s:%(lineno)-8s %(message)s",
-    "logLevel": "INFO"
+    "logging": {
+      "format": "%(asctime)-15s %(threadName)-15s  %(levelname)-8s %(module)-15s:%(lineno)-8s %(message)s",
+      "logLevel": "INFO"
     }
   },
   "persistence": {
@@ -123,19 +123,19 @@ The `/app/modbus_server.json` file comes with following content:
     "file": "/data/modbus_registers.json",
     "saveInterval": 30
   },
-"metrics": {
-  "enabled": false,
-  "address": "0.0.0.0",
-  "port": 9090,
-  "path": "/metrics"
-},
-"registers": {
-  "description": "initial values for the register types",
-  "initializeUndefinedRegisters": true,
-  "discreteInput": {},
-  "coils": {},
-  "holdingRegister": {},
-  "inputRegister": {}
+  "metrics": {
+    "enabled": false,
+    "address": "0.0.0.0",
+    "port": 9090,
+    "path": "/metrics"
+  },
+  "registers": {
+    "description": "initial values for the register types",
+    "initializeUndefinedRegisters": true,
+    "discreteInput": {},
+    "coils": {},
+    "holdingRegister": {},
+    "inputRegister": {}
   }
 }
 ```
@@ -220,7 +220,7 @@ Example configuration of pre-defined registers from type "Holding Registers" or 
 
 ## Data persistence
 
-The persistence layer enables all register changes (made by Modbus write accesses) to be automatically saved and restored after the server is restarted.
+With v2.1.0 there is a data persistence layer. The persistence layer enables all register changes (made by Modbus write accesses) to be automatically saved and restored after the server is restarted.
 
 ### Functionality
 
@@ -301,7 +301,7 @@ For critical applications, you should create regular backups. When using Docker,
 
 ## Metrics endpoint
 
-When activating the metrics endpoint, the modbus server provides to html endpoints:
+When activating the metrics endpoint, the modbus server provides two html endpoints:
 
 * `/health`: the health endpoint only shows the text string `OK` and can be used for monitoring. There is no other functionality behind.
 * `/metrics`: the metrics endpoint that provides system and operational metrics about python and the modbus server usage. The endpoint path can be changed in the configuration file.
@@ -310,23 +310,23 @@ When activating the metrics endpoint, the modbus server provides to html endpoin
 
 Following metrics will be collected:
 
-* memory_total_bytes: Gauge of total system memory
-* memory_available_bytes: Gauge of available system memory
-* memory_consumption_bytes: Gauge of current memory usage
-* memory_consumption_percentage: Gauge of memory usage percentage
-* cpu_usage_percentage: Gauge of current CPU usage percentage
-* cpu_count: Gauge of number of CPU cores
-* cpu_load1: Gauge of 1-minute load average per CPU
-* cpu_load5: Gauge of 5-minute load average per CPU
-* cpu_load15: Gauge of 15-minute load average per CPU
-* cpu_load1_percentage: Gauge of 1-minute load average as percentage of CPU capacity
-* cpu_load5_percentage: Gauge of 5-minute load average as percentage of CPU capacity
-* cpu_load15_percentage: Gauge of 15-minute load average as percentage of CPU capacity
-* modbus_requests_total: Counter of requests by function code
-* modbus_register_reads_total: Counter of read operations per register
-* modbus_register_writes_total: Counter of write operations per register
-* modbus_errors_total: Counter of errors by exception code
-* modbus_server_uptime_seconds: Counter of server uptime
+* `memory_total_bytes`: Gauge of total system memory
+* `memory_available_bytes`: Gauge of available system memory
+* `memory_consumption_bytes`: Gauge of current memory usage
+* `memory_consumption_percentage`: Gauge of memory usage percentage
+* `cpu_usage_percentage`: Gauge of current CPU usage percentage
+* `cpu_count`: Gauge of number of CPU cores
+* `cpu_load1`: Gauge of 1-minute load average per CPU
+* `cpu_load5`: Gauge of 5-minute load average per CPU
+* `cpu_load15`: Gauge of 15-minute load average per CPU
+* `cpu_load1_percentage`: Gauge of 1-minute load average as percentage of CPU capacity
+* `cpu_load5_percentage`: Gauge of 5-minute load average as percentage of CPU capacity
+* `cpu_load15_percentage`: Gauge of 15-minute load average as percentage of CPU capacity
+* `modbus_requests_total`: Counter of requests by function code
+* `modbus_register_reads_total`: Counter of read operations per register
+* `modbus_register_writes_total`: Counter of write operations per register
+* `modbus_errors_total`: Counter of errors by exception code
+* `modbus_server_uptime_seconds`: Counter of server uptime
 
 ### Configuration of the metrics endpoint
 
