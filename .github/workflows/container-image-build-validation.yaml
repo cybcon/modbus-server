@@ -67,7 +67,7 @@ jobs:
           echo '  <summary>Test output details</summary>' >> "${GITHUB_STEP_SUMMARY}"
           echo "" >> "${GITHUB_STEP_SUMMARY}"
           echo '  ```' >> "${GITHUB_STEP_SUMMARY}"
-          echo "  docker run --rm oitc/modbus-client:latest -s "${modbusserver}" -p 5020 -t 1 -r 0 -l 10" >> "${GITHUB_STEP_SUMMARY}""
+          echo "  docker run --rm oitc/modbus-client:latest -s "${modbusserver}" -p 5020 -t 1 -r 0 -l 10" >> "${GITHUB_STEP_SUMMARY}"
           docker run --rm oitc/modbus-client:latest -s "${modbusserver}" -p 5020 -t 1 -r 0 -l 10 > output.tmp 2>&1
           cat output.tmp | while read line
           do
@@ -117,7 +117,7 @@ jobs:
           echo '  <summary>Test output details</summary>' >> "${GITHUB_STEP_SUMMARY}"
           echo "" >> "${GITHUB_STEP_SUMMARY}"
           echo '  ```' >> "${GITHUB_STEP_SUMMARY}"
-          echo "  docker run --rm oitc/modbus-client:latest -s "${modbusserver}"" -p 5020 -t 3 -r 0 -l 10" >> "${GITHUB_STEP_SUMMARY}"
+          echo "  docker run --rm oitc/modbus-client:latest -s "${modbusserver}" -p 5020 -t 3 -r 0 -l 10" >> "${GITHUB_STEP_SUMMARY}"
           docker run --rm oitc/modbus-client:latest -s "${modbusserver}" -p 5020 -t 3 -r 0 -l 10 > output.tmp 2>&1
           cat output.tmp | while read line
           do
