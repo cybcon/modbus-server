@@ -23,7 +23,8 @@ Container image: [DockerHub](https://hub.docker.com/r/oitc/modbus-server)
 
 ## Supported tags and respective `Dockerfile` links
 
-* [`latest`, `2.2.0`](https://github.com/cybcon/modbus-server/blob/v2.2.0/Dockerfile)
+* [`latest`, `2.3.0`](https://github.com/cybcon/modbus-server/blob/v2.3.0/Dockerfile)
+* [`2.2.0`](https://github.com/cybcon/modbus-server/blob/v2.2.0/Dockerfile)
 * [`2.1.0`](https://github.com/cybcon/modbus-server/blob/v2.1.0/Dockerfile)
 * [`2.0.0`](https://github.com/cybcon/modbus-server/blob/v2.0.0/Dockerfile)
 * [`1.4.1`](https://github.com/cybcon/modbus-server/blob/v1.4.1/Dockerfile)
