@@ -62,6 +62,7 @@ jobs:
       - name: Test Discrete Output Coils
         run: |
           modbusserver=${{steps. modbus-server-address.outputs.ip}}
+          # shellcheck disable=SC2129
           echo "## Get Discrete Output Coils" >> "${GITHUB_STEP_SUMMARY}"
           echo '<details>' >> "${GITHUB_STEP_SUMMARY}"
           echo '  <summary>Test output details</summary>' >> "${GITHUB_STEP_SUMMARY}"
@@ -73,6 +74,7 @@ jobs:
           do
             echo "  ${line}" >> "${GITHUB_STEP_SUMMARY}"
           done < output.tmp
+          # shellcheck disable=SC2129
           echo '  ```' >> "${GITHUB_STEP_SUMMARY}"
           echo '</details>' >> "${GITHUB_STEP_SUMMARY}"
           echo "" >> "${GITHUB_STEP_SUMMARY}"
@@ -87,6 +89,7 @@ jobs:
       - name: Test Discrete Input Contacts
         run: |
           modbusserver=${{steps. modbus-server-address.outputs.ip}}
+          # shellcheck disable=SC2129
           echo "## Get Discrete Input Contacts" >> "${GITHUB_STEP_SUMMARY}"
           echo '<details>' >> "${GITHUB_STEP_SUMMARY}"
           echo '  <summary>Test output details</summary>' >> "${GITHUB_STEP_SUMMARY}"
@@ -98,6 +101,7 @@ jobs:
           do
             echo "  ${line}" >> "${GITHUB_STEP_SUMMARY}"
           done < output.tmp
+          # shellcheck disable=SC2129
           echo '  ```' >> "${GITHUB_STEP_SUMMARY}"
           echo '</details>' >> "${GITHUB_STEP_SUMMARY}"
           echo "" >> "${GITHUB_STEP_SUMMARY}"
@@ -112,6 +116,7 @@ jobs:
       - name: Test Analog Output Holding Register
         run: |
           modbusserver=${{steps. modbus-server-address.outputs.ip}}
+          # shellcheck disable=SC2129
           echo "## Get Analog Output Holding Register" >> "${GITHUB_STEP_SUMMARY}"
           echo '<details>' >> "${GITHUB_STEP_SUMMARY}"
           echo '  <summary>Test output details</summary>' >> "${GITHUB_STEP_SUMMARY}"
@@ -123,6 +128,7 @@ jobs:
           do
             echo "  ${line}" >> "${GITHUB_STEP_SUMMARY}"
           done < output.tmp
+          # shellcheck disable=SC2129
           echo '  ```' >> "${GITHUB_STEP_SUMMARY}"
           echo '</details>' >> "${GITHUB_STEP_SUMMARY}"
           echo "" >> "${GITHUB_STEP_SUMMARY}"
@@ -137,6 +143,7 @@ jobs:
       - name: Test Analog Input Register
         run: |
           modbusserver=${{steps. modbus-server-address.outputs.ip}}
+          # shellcheck disable=SC2129
           echo "## Get Analog Input Register" >> "${GITHUB_STEP_SUMMARY}"
           echo '<details>' >> "${GITHUB_STEP_SUMMARY}"
           echo '  <summary>Test output details</summary>' >> "${GITHUB_STEP_SUMMARY}"
@@ -148,6 +155,7 @@ jobs:
           do
             echo "  ${line}" >> "${GITHUB_STEP_SUMMARY}"
           done < output.tmp
+          # shellcheck disable=SC2129
           echo '  ```' >> "${GITHUB_STEP_SUMMARY}"
           echo '</details>' >> "${GITHUB_STEP_SUMMARY}"
           echo "" >> "${GITHUB_STEP_SUMMARY}"
