@@ -1,10 +1,10 @@
-"""***************************************************************************
+"""
 Modbus TCP server script for debugging
 Author: Michael Oberdorf IT-Consulting
 Datum: 2020-03-30
 Last modified by: Michael Oberdorf
-Last modified at: 2026-02-21
-***************************************************************************"""
+Last modified at: 2026-07-06
+"""
 
 import argparse
 import json
@@ -28,12 +28,17 @@ from pymodbus.datastore import (
 from pymodbus.pdu.device import ModbusDeviceIdentification
 from pymodbus.server import StartTcpServer, StartTlsServer, StartUdpServer
 
+__author__ = "Michael Oberdorf <info@oberdorf-itc.de>"
+__status__ = "production"
+__date__ = "2026-07-06"
+__version_info__ = ("2", "3", "0")
+__version__ = ".".join(__version_info__)
+
 # default configuration file path
 __script_path__ = os.path.dirname(__file__)
 __persistence_path__ = os.path.join(os.path.dirname(__script_path__), "data")
 default_config_file = os.path.join(__script_path__, "modbus_server.json")
 default_persistence_file = os.path.join(__persistence_path__, "modbus_registers.json")
-VERSION = "2.2.0"
 
 log = logging.getLogger()
 
@@ -345,7 +350,7 @@ def _prepare_register(
         else:
             log.error(
                 f"  Malformed input or input is out of range for register: "
-                f"{key_out} -> value is {val} - skip this register initialization!"
+                f"{key_out} -> value is {val} - skip this register initialization for init type {init_type}!"
             )
             continue
         out_register[key_out] = val_out
@@ -445,7 +450,7 @@ if __name__ == "__main__":
     logging.basicConfig(format=CONFIG["server"]["logging"]["format"])
 
     # start the server
-    log.info(f"Starting Modbus Server, v{VERSION}")
+    log.info(f"Starting Modbus Server, v{__version__}")
     log.debug(f"Loaded successfully the configuration file: {config_file}")
 
     # Check for persistence configuration
